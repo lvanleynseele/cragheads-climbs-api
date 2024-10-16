@@ -86,27 +86,25 @@ const findById = async (trainingId: string | ObjectId) => {
   return response;
 };
 
-const findByProfileId = async (profileId: string | ObjectId) =>
-  //: Promise<ClimbResponse[]>
-  {
-    const profile = await profileService.findProfileById(profileId);
+const findByProfileId = async (profileId: string | ObjectId) => {
+  const profile = await profileService.findProfileById(profileId);
 
-    let trains: TrainingDataResponse[] = [];
+  let trains: TrainingDataResponse[] = [];
 
-    if (profile && profile.trainingIds) {
-      await Promise.all(
-        profile.trainingIds.map(async trainId => {
-          const train = await findById(trainId);
-          trains.push(train);
-        }),
-      );
-    }
+  if (profile && profile.trainingIds) {
+    await Promise.all(
+      profile.trainingIds.map(async trainId => {
+        const train = await findById(trainId);
+        trains.push(train);
+      }),
+    );
+  }
 
-    return trains;
-  };
+  return trains;
+};
 
 const findAllTrains = async (): Promise<TrainingData[]> => {
-  return await TrainingDatas.find({}); //collections.climbs.find({}).toArray();
+  return await TrainingDatas.find({});
 };
 
 const addTraining = async (
