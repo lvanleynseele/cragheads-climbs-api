@@ -14,7 +14,6 @@ export interface GymClimbData {
   difficulty: number;
   didSend: boolean;
   numberOfAttempts: number;
-
   percievedDifficulty?: number;
   keyHolds?: GymHoldTypes[];
   keyMoves?: KeyMoveTypes[];

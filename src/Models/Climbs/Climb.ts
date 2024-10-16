@@ -5,8 +5,8 @@ import { OutdoorClimbData } from './OutdoorData';
 
 export interface ClimbResponse {
   climb: Climb;
-  gymData?: GymClimbData | null;
-  outdoorData?: OutdoorClimbData | null;
+  gymData?: GymClimbData[] | null;
+  outdoorData?: OutdoorClimbData[] | null;
 }
 
 export interface Climb {
@@ -14,8 +14,8 @@ export interface Climb {
   userId: ObjectId;
   areaId: ObjectId;
   isGymClimb: boolean;
-  gymDataId?: ObjectId;
-  outdoorDataId?: ObjectId;
+  gymDataIds?: ObjectId[];
+  outdoorDataIds?: ObjectId[];
   startTime: string;
   endTime: string;
   createdAt: Date;
@@ -42,17 +42,17 @@ export const ClimbSchema = new Schema<Climb>(
       required: true,
       index: true,
     },
-    gymDataId: {
-      type: Schema.Types.ObjectId,
+    gymDataIds: {
+      type: [Schema.Types.ObjectId],
       ref: 'GymClimbData',
       required: false,
-      default: null,
+      default: [],
     },
-    outdoorDataId: {
-      type: Schema.Types.ObjectId,
+    outdoorDataIds: {
+      type: [Schema.Types.ObjectId],
       ref: 'OutdoorClimbData',
       required: false,
-      default: null,
+      default: [],
     },
     startTime: {
       type: String,

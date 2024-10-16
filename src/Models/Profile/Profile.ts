@@ -16,7 +16,7 @@ export interface Profile {
   myRouteIds: ObjectId[];
   myAreaIds: ObjectId[];
   climbIds: ObjectId[];
-  recorderIds: ObjectId[];
+  recordIds: ObjectId[];
   postIds: ObjectId[];
   date: Date;
 }
@@ -82,7 +82,7 @@ export const ProfileSchema = new Schema<Profile>(
       default: [],
       index: true,
     },
-    recorderIds: {
+    recordIds: {
       type: [Schema.Types.ObjectId],
       required: false,
       default: [],
