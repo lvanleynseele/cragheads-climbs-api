@@ -286,7 +286,7 @@ const deleteTrain = async (
   return result;
 };
 
-const climbsService = {
+const trainingService = {
   findById,
   findByProfileId,
   addTraining,
@@ -295,4 +295,4 @@ const climbsService = {
   findAllTrains,
 };
 
-export default climbsService;
+export default trainingService;

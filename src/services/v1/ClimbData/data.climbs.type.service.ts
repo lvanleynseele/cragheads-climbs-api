@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongoose';
-import { collections } from '../../utility/database.service';
 import Climbs from '../../../Models/Climbs/Climb';
 
 const getClimbsPerTypeMonth = async (profileId: ObjectId | string) => {
