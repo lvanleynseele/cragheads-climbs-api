@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: cragheads-auth-api
+    restart: always
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_CONN_STRING=mongodb://mongodb:27017/cragheads-db
+      - PORT=3002
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD=Europa321*
+      - KEYCLOAK_REALM=dev
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_ID=cragheads_auth
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-rest-cli
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=GYn40GKV713rKAI5faYI7wbY6h3UQbpX
+    depends_on:
+      - mongodb
+      - keycloak
+    volumes:
+      - .:/app
+    networks:
+      - cragheads-auth-network
+    
+  mongodb:
+    container_name: cragheads-auth-mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+    networks:
+      - cragheads-auth-network
+
+  keycloak:
+    container_name: cragheads-auth-keycloak
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloakdb:5432/keycloak_db
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_HOSTNAME=localhost
+      - KC_HOSTNAME_PORT=8080
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_LOG_LEVEL=info
+      - KC_METRICS_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: start-dev
+    depends_on:
+      - keycloakdb
+    ports:
+      - "8080:8080"
+    networks:
+      - cragheads-auth-network
+
+  keycloakdb:
+    container_name: cragheads-auth-keycloak_db
+    image: postgres
+    environment:
+      - POSTGRES_DB=keycloak_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - cragheads-auth-network
+
+networks:
+  cragheads-auth-network:
+    driver: bridge
