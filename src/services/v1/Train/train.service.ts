@@ -95,9 +95,9 @@ const findByProfileId = async (profileId: string | ObjectId) =>
 
     if (profile && profile.trainingIds) {
       await Promise.all(
-        profile.climbIds.map(async trainId => {
-          const climb = await findById(trainId);
-          trains.push(climb);
+        profile.trainingIds.map(async trainId => {
+          const train = await findById(trainId);
+          trains.push(train);
         }),
       );
     }

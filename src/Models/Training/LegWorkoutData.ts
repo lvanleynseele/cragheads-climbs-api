@@ -6,12 +6,12 @@ export interface LegWorkoutData {
   _id: ObjectId;
   userId: ObjectId;
   exerciseName: LegExerciseTypes;
-  sets: number;
-  reps: number;
-  weight: number; // Weight used in the exercise
-  restTime: number; // Rest time between sets in seconds
-  duration: number; // Total duration of the workout in minutes
-  intensity: number; // Subjective measure of workout intensity
+  sets?: number;
+  reps?: number;
+  weight?: number; // Weight used in the exercise
+  restTime?: number; // Rest time between sets in seconds
+  duration?: number; // Total duration of the workout in minutes
+  intensity?: number; // Subjective measure of workout intensity
   notes?: string; // Any additional notes about the workout
   createdAt: Date; // Date of the workout session
   updatedAt: Date;
@@ -31,27 +31,27 @@ const LegWorkoutDataSchema = new Schema<LegWorkoutData>(
     },
     sets: {
       type: Number,
-      required: true,
+      required: false,
     },
     reps: {
       type: Number,
-      required: true,
+      required: false,
     },
     weight: {
       type: Number,
-      required: true,
+      required: false,
     },
     restTime: {
       type: Number,
-      required: true,
+      required: false,
     },
     duration: {
       type: Number,
-      required: true,
+      required: false,
     },
     intensity: {
       type: Number,
-      required: true,
+      required: false,
     },
     notes: {
       type: String,
