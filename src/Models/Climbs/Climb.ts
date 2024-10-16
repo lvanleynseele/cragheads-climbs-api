@@ -27,7 +27,7 @@ export const ClimbSchema = new Schema<Climb>(
     // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Profile',
       index: true,
       required: true,
     },

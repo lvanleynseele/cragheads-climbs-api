@@ -1,15 +1,12 @@
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId, Schema } from 'mongoose';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import { CampusBoardGripTypes, CampusBoardTypes } from '../../constants/enums';
 
 export interface CampusBoardData {
   _id: ObjectId;
   userId: ObjectId;
-  trainingId: ObjectId;
   campusBoardId: ObjectId;
   campusBoardType: CampusBoardTypes;
-  difficultyLevel: number;
-  campusBoardReps: number;
-  campusBoardSets: number;
-  campusBoardRestTime: number;
   gripType: CampusBoardGripTypes;
   bodyWeight?: number;
   addedWeight?: number;
@@ -18,16 +15,69 @@ export interface CampusBoardData {
   restTime?: number;
   injuryStatus?: string;
   notes?: string;
-  date: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export enum CampusBoardTypes {
-  MAX_REACH = 'MAX_REACH',
-  POWER = 'POWER',
-}
+const CampusBoardDataSchema = new Schema<CampusBoardData>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Profile',
+      required: true,
+    },
+    campusBoardId: {
+      type: Schema.Types.ObjectId,
+      ref: 'CampusBoard',
+      required: true,
+    },
+    campusBoardType: {
+      type: String,
+      enum: Object.values(CampusBoardTypes),
+      required: true,
+    },
+    gripType: {
+      type: String,
+      enum: Object.values(CampusBoardGripTypes),
+      required: true,
+    },
+    bodyWeight: {
+      type: Number,
+      required: false,
+    },
+    addedWeight: {
+      type: Number,
+      required: false,
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    sets: {
+      type: Number,
+      required: true,
+    },
+    restTime: {
+      type: Number,
+      required: false,
+    },
+    injuryStatus: {
+      type: String,
+      required: false,
+    },
+    notes: {
+      type: String,
+      required: false,
+    },
+  },
+  { timestamps: true },
+);
 
-export enum CampusBoardGripTypes {
-  OPEN_HAND = 'OPEN_HAND',
-  HALF_CRIMP = 'HALF_CRIMP',
-  FULL_CRIMP = 'FULL_CRIMP',
-}
+CampusBoardDataSchema.plugin(mongooseAggregatePaginate);
+
+export const CampusBoardDatas = mongoose.model<CampusBoardData>(
+  'CampusBoardData',
+  CampusBoardDataSchema,
+);
+
+export default CampusBoardDatas;

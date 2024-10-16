@@ -1,129 +1,298 @@
-// import { ObjectId } from 'mongoose';
-// import Climbs, { Climb, ClimbResponse } from '../../../Models/Climbs/Climb';
-// import profileService from '../Profile/profile.service';
-// import { GymClimbData } from '../../../Models/Climbs/GymData';
-// import { OutdoorClimbData } from '../../../Models/Climbs/OutdoorData';
+import { ObjectId } from 'mongoose';
+import profileService from '../Profile/profile.service';
+import TrainingDatas, {
+  TrainingData,
+  TrainingDataResponse,
+} from '../../../Models/Training/Train';
+import armDataService from './train.armWorkout.service';
+import legDataService from './train.legWorkout.service';
+import campusboardDataService from './train.campusboardWorkout.service';
+import hangboardDataService from './train.hangboardWorkout.service';
+import cardioDataService from './train.cardioWorkout.service';
+import { LegWorkoutData } from '../../../Models/Training/LegWorkoutData';
+import { HangBoardData } from '../../../Models/Training/HangboardData';
+import { CardioWorkoutData } from '../../../Models/Training/CardioData';
+import { CampusBoardData } from '../../../Models/Training/CampusBoardData';
+import { ArmWorkoutData } from '../../../Models/Training/ArmWorkoutData';
 
-// const findById = async (climbId: string | ObjectId): Promise<ClimbResponse> => {
-//   const climb = await Climbs.findById(climbId);
-//   if (!climb) {
-//     throw new Error('Climb not found');
-//   }
+const findById = async (trainingId: string | ObjectId) => {
+  const training = await TrainingDatas.findById(trainingId);
+  if (!training) {
+    throw new Error('Climb not found');
+  }
 
-//   if (climb.gymDataIds) {
-//     const gymData = await Promise.all(
-//       climb.gymDataIds.map(async gymDataId => {
-//         return await gymClimbDataService.findById(gymDataId);
-//       }),
-//     );
+  const response: {
+    train: typeof training;
+    armData: any[];
+    campusboardData: any[];
+    hangboardData: any[];
+    cardioData: any[];
+    legData: any[];
+  } = {
+    train: training,
+    armData: [],
+    campusboardData: [],
+    hangboardData: [],
+    cardioData: [],
+    legData: [],
+  };
 
-//     gymClimbDataService.findById(climb.gymDataId);
-//     return { climb, gymData };
-//   }
+  if (training.armDataIds) {
+    const armData = await Promise.all(
+      training.armDataIds.map(async armDataId => {
+        return await armDataService.findById(armDataId);
+      }),
+    );
 
-//   if (climb.outdoorDataId) {
-//     const outdoorData = await outdoorClimbDataService.findById(
-//       climb.outdoorDataId,
-//     );
-//     return { climb, outdoorData };
-//   }
+    response.armData = armData;
+  }
 
-//   return { climb };
-// };
+  if (training.campusboardDataIds) {
+    const campusboardData = await Promise.all(
+      training.campusboardDataIds.map(async campusboardDataId => {
+        return await campusboardDataService.findById(campusboardDataId);
+      }),
+    );
+    response.campusboardData = campusboardData;
+  }
 
-// const findByProfileId = async (
-//   profileId: string | ObjectId,
-// ): Promise<ClimbResponse[]> => {
-//   const profile = await profileService.findProfileById(profileId);
+  if (training.hangboardDataIds) {
+    const hangboardData = await Promise.all(
+      training.hangboardDataIds.map(async hangboardDataId => {
+        return await hangboardDataService.findById(hangboardDataId);
+      }),
+    );
+    response.hangboardData = hangboardData;
+  }
 
-//   let climbs: ClimbResponse[] = [];
+  if (training.cardioDataIds) {
+    const cardioData = await Promise.all(
+      training.cardioDataIds.map(async cardioDataId => {
+        return await cardioDataService.findById(cardioDataId);
+      }),
+    );
+    response.cardioData = cardioData;
+  }
 
-//   if (profile && profile.climbIds) {
-//     await Promise.all(
-//       profile.climbIds.map(async climbId => {
-//         const climb = await findById(climbId);
-//         climbs.push(climb);
-//       }),
-//     );
-//   }
+  if (training.legDataIds) {
+    const legData = await Promise.all(
+      training.legDataIds.map(async legDataId => {
+        return await legDataService.findById(legDataId);
+      }),
+    );
+    response.legData = legData;
+  }
 
-//   return climbs;
-// };
+  return response;
+};
 
-// const findAllClimbs = async (): Promise<Climb[]> => {
-//   return await Climbs.find({}); //collections.climbs.find({}).toArray();
-// };
+const findByProfileId = async (profileId: string | ObjectId) =>
+  //: Promise<ClimbResponse[]>
+  {
+    const profile = await profileService.findProfileById(profileId);
 
-// const addClimb = async (
-//   profileId: string | ObjectId,
-//   climb: Climb,
-//   gymData?: GymClimbData,
-//   outdoorData?: OutdoorClimbData,
-// ): Promise<Climb> => {
-//   await Climbs.validate(climb);
+    let trains: TrainingDataResponse[] = [];
 
-//   if (gymData) {
-//     const gymResponse = await gymClimbDataService.add(gymData);
-//     climb.gymDataId = gymResponse._id;
-//   }
+    if (profile && profile.trainingIds) {
+      await Promise.all(
+        profile.climbIds.map(async trainId => {
+          const climb = await findById(trainId);
+          trains.push(climb);
+        }),
+      );
+    }
 
-//   if (outdoorData) {
-//     const outdoorResponse = await outdoorClimbDataService.add(outdoorData);
-//     climb.outdoorDataId = outdoorResponse._id;
-//   }
+    return trains;
+  };
 
-//   const result = await Climbs.create(climb);
+const findAllTrains = async (): Promise<TrainingData[]> => {
+  return await TrainingDatas.find({}); //collections.climbs.find({}).toArray();
+};
 
-//   await profileService.addClimb(profileId, result._id);
+const addTraining = async (
+  profileId: string | ObjectId,
+  train: TrainingData,
+  armData?: ArmWorkoutData[],
+  campusboardData?: CampusBoardData[],
+  cardioData?: CardioWorkoutData[],
+  hangboardData?: HangBoardData[],
+  legData?: LegWorkoutData[],
+): Promise<TrainingData> => {
+  await TrainingDatas.validate(train);
 
-//   return result;
-// };
+  if (armData) {
+    const armResponse = await Promise.all(
+      armData.map(async data => {
+        return await armDataService.add(data);
+      }),
+    );
 
-// const updateClimb = async (
-//   id: string | ObjectId,
-//   climb: Climb,
-//   gymData?: GymClimbData,
-//   outdoorData?: OutdoorClimbData,
-// ): Promise<Climb | null> => {
-//   await Climbs.validate(climb);
+    train.armDataIds = armResponse.map(data => data._id);
+  }
 
-//   if (gymData) {
-//     await gymClimbDataService.update(gymData);
-//     climb.gymDataId = gymData._id;
-//   }
+  if (campusboardData) {
+    const campusboardResponse = await Promise.all(
+      campusboardData.map(async data => {
+        return await campusboardDataService.add(data);
+      }),
+    );
 
-//   if (outdoorData) {
-//     await outdoorClimbDataService.update(outdoorData);
-//     climb.outdoorDataId = outdoorData._id;
-//   }
+    train.campusboardDataIds = campusboardResponse.map(data => data._id);
+  }
 
-//   return await Climbs.findByIdAndUpdate({ _id: id }, { $set: climb });
-// };
+  if (cardioData) {
+    const cardioResponse = await Promise.all(
+      cardioData.map(async data => {
+        return await cardioDataService.add(data);
+      }),
+    );
 
-// const deleteClimb = async (
-//   id: string | ObjectId,
-//   profileId: string | ObjectId,
-// ): Promise<Climb | null> => {
-//   const result = await Climbs.findByIdAndDelete({ _id: id });
-//   if (result && result.gymDataId) {
-//     await gymClimbDataService.remove(result.gymDataId);
-//   }
-//   if (result && result.outdoorDataId) {
-//     await outdoorClimbDataService.remove(result.outdoorDataId);
-//   }
+    train.cardioDataIds = cardioResponse.map(data => data._id);
+  }
 
-//   await profileService.removeClimb(profileId, id);
+  if (hangboardData) {
+    const hangboardResponse = await Promise.all(
+      hangboardData.map(async data => {
+        return await hangboardDataService.add(data);
+      }),
+    );
 
-//   return result;
-// };
+    train.hangboardDataIds = hangboardResponse.map(data => data._id);
+  }
 
-// const climbsService = {
-//   findById,
-//   findByProfileId,
-//   addClimb,
-//   updateClimb,
-//   deleteClimb,
-//   findAllClimbs,
-// };
+  if (legData) {
+    const legResponse = await Promise.all(
+      legData.map(async data => {
+        return await legDataService.add(data);
+      }),
+    );
 
-// export default climbsService;
+    train.legDataIds = legResponse.map(data => data._id);
+  }
+
+  const result = await TrainingDatas.create(train);
+
+  await profileService.addTraining(profileId, result._id);
+
+  return result;
+};
+
+const updateTrain = async (
+  id: string | ObjectId,
+  train: TrainingData,
+  armData?: ArmWorkoutData[],
+  campusboardData?: CampusBoardData[],
+  cardioData?: CardioWorkoutData[],
+  hangboardData?: HangBoardData[],
+  legData?: LegWorkoutData[],
+): Promise<TrainingData | null> => {
+  await TrainingDatas.validate(train);
+
+  if (armData) {
+    await Promise.all(
+      armData.map(async data => {
+        await armDataService.update(data);
+      }),
+    );
+  }
+
+  if (campusboardData) {
+    await Promise.all(
+      campusboardData.map(async data => {
+        await campusboardDataService.update(data);
+      }),
+    );
+  }
+
+  if (cardioData) {
+    await Promise.all(
+      cardioData.map(async data => {
+        await cardioDataService.update(data);
+      }),
+    );
+  }
+
+  if (hangboardData) {
+    await Promise.all(
+      hangboardData.map(async data => {
+        await hangboardDataService.update(data);
+      }),
+    );
+  }
+
+  if (legData) {
+    await Promise.all(
+      legData.map(async data => {
+        await legDataService.update(data);
+      }),
+    );
+  }
+
+  return await TrainingDatas.findByIdAndUpdate({ _id: id }, { $set: train });
+};
+
+const deleteTrain = async (
+  id: string | ObjectId,
+  profileId: string | ObjectId,
+): Promise<TrainingData | null> => {
+  const result = await TrainingDatas.findByIdAndDelete({ _id: id });
+
+  if (!result) {
+    throw new Error('Climb not found');
+  }
+
+  if (result && result.armDataIds) {
+    await Promise.all(
+      result.armDataIds.map(async armDataId => {
+        await armDataService.remove(armDataId);
+      }),
+    );
+  }
+
+  if (result && result.campusboardDataIds) {
+    await Promise.all(
+      result.campusboardDataIds.map(async campusboardDataId => {
+        await campusboardDataService.remove(campusboardDataId);
+      }),
+    );
+  }
+
+  if (result && result.cardioDataIds) {
+    await Promise.all(
+      result.cardioDataIds.map(async cardioDataId => {
+        await cardioDataService.remove(cardioDataId);
+      }),
+    );
+  }
+
+  if (result && result.hangboardDataIds) {
+    await Promise.all(
+      result.hangboardDataIds.map(async hangboardDataId => {
+        await hangboardDataService.remove(hangboardDataId);
+      }),
+    );
+  }
+
+  if (result && result.legDataIds) {
+    await Promise.all(
+      result.legDataIds.map(async legDataId => {
+        await legDataService.remove(legDataId);
+      }),
+    );
+  }
+
+  await profileService.removeTraining(profileId, id);
+
+  return result;
+};
+
+const climbsService = {
+  findById,
+  findByProfileId,
+  addTraining,
+  updateTrain,
+  deleteTrain,
+  findAllTrains,
+};
+
+export default climbsService;

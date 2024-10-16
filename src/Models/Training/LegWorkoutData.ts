@@ -1,9 +1,10 @@
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId, Schema } from 'mongoose';
+import { LegExerciseTypes } from '../../constants/enums';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 export interface LegWorkoutData {
   _id: ObjectId;
   userId: ObjectId;
-  workoutId: ObjectId;
   exerciseName: LegExerciseTypes;
   sets: number;
   reps: number;
@@ -12,19 +13,61 @@ export interface LegWorkoutData {
   duration: number; // Total duration of the workout in minutes
   intensity: number; // Subjective measure of workout intensity
   notes?: string; // Any additional notes about the workout
-  date: Date; // Date of the workout session
+  createdAt: Date; // Date of the workout session
+  updatedAt: Date;
 }
 
-export enum LegExerciseTypes {
-  SQUAT = 'SQUAT',
-  LUNGE = 'LUNGE',
-  LEG_PRESS = 'LEG_PRESS',
-  DEADLIFT = 'DEADLIFT',
-  LEG_CURL = 'LEG_CURL',
-  LEG_EXTENSION = 'LEG_EXTENSION',
-  CALF_RAISE = 'CALF_RAISE',
-  BULGARIAN_SPLIT_SQUAT = 'BULGARIAN_SPLIT_SQUAT',
-  STEP_UP = 'STEP_UP',
-  GLUTE_BRIDGE = 'GLUTE_BRIDGE',
-  HIP_THRUST = 'HIP_THRUST',
-}
+const LegWorkoutDataSchema = new Schema<LegWorkoutData>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Profile',
+      required: true,
+    },
+    exerciseName: {
+      type: String,
+      enum: Object.values(LegExerciseTypes),
+      required: true,
+    },
+    sets: {
+      type: Number,
+      required: true,
+    },
+    reps: {
+      type: Number,
+      required: true,
+    },
+    weight: {
+      type: Number,
+      required: true,
+    },
+    restTime: {
+      type: Number,
+      required: true,
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    intensity: {
+      type: Number,
+      required: true,
+    },
+    notes: {
+      type: String,
+      required: false,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+LegWorkoutDataSchema.plugin(mongooseAggregatePaginate);
+
+const LegWorkoutDatas = mongoose.model<LegWorkoutData>(
+  'LegWorkoutData',
+  LegWorkoutDataSchema,
+);
+
+export default LegWorkoutDatas;

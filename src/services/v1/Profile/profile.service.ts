@@ -45,10 +45,44 @@ const removeClimb = async (
   }
 };
 
+const addTraining = async (
+  profileId: string | ObjectId,
+  trainingId: string | ObjectId,
+) => {
+  try {
+    const response = await Profiles.updateOne(
+      { _id: profileId },
+      { $addToSet: { trainingIds: trainingId } },
+    );
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const removeTraining = async (
+  profileId: string | ObjectId,
+  trainingId: string | ObjectId,
+) => {
+  try {
+    const response = await Profiles.updateOne(
+      { _id: profileId },
+      { $pull: { trainingIds: trainingId } as any },
+    );
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const profileService = {
   findProfileById,
   addClimb,
   removeClimb,
+  addTraining,
+  removeTraining,
 };
 
 export default profileService;

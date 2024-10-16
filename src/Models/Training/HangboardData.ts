@@ -1,4 +1,11 @@
-import { ObjectId } from 'mongoose';
+import mongoose, { ObjectId, Schema } from 'mongoose';
+import {
+  HangBoardGripTypes,
+  HangBoardHoldSizes,
+  HangBoardHoldTypes,
+  HangBoardTypes,
+} from '../../constants/enums';
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 export interface HangBoardData {
   _id: ObjectId;
@@ -16,39 +23,84 @@ export interface HangBoardData {
   restTime?: number;
   injuryStatus?: string;
   notes?: string;
-  date: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export enum HangBoardTypes {
-  MAX_WEIGHT = 'MAX_WEIGHT',
-  ENDURANCE = 'ENDURANCE',
-}
+const HangBoardDataSchema = new Schema<HangBoardData>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Profile',
+      required: true,
+    },
+    trainingId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Training',
+      required: true,
+    },
+    hangBoardId: {
+      type: Schema.Types.ObjectId,
+      ref: 'HangBoard',
+      required: true,
+    },
+    hangBoardType: {
+      type: String,
+      enum: Object.values(HangBoardTypes),
+      required: true,
+    },
+    hangBoardGripType: {
+      type: String,
+      enum: Object.values(HangBoardGripTypes),
+      required: true,
+    },
+    hangBoardHoldType: {
+      type: String,
+      enum: Object.values(HangBoardHoldTypes),
+      required: true,
+    },
+    hangBoardHoldSize: {
+      type: String,
+      enum: Object.values(HangBoardHoldSizes),
+      required: true,
+    },
+    bodyWeight: {
+      type: Number,
+      required: false,
+    },
+    addedWeight: {
+      type: Number,
+      required: false,
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    sets: {
+      type: Number,
+      required: true,
+    },
+    restTime: {
+      type: Number,
+      required: false,
+    },
+    injuryStatus: {
+      type: String,
+      required: false,
+    },
+    notes: {
+      type: String,
+      required: false,
+    },
+  },
+  { timestamps: true },
+);
 
-export enum HangBoardGripTypes {
-  '4FINGER' = '4FINGER',
-  '3FINGER' = '3FINGER',
-  '2FINGER' = '2FINGER',
-  MONO = 'MONO',
-  'FULL_CRIMP' = 'FULL_CRIMP',
-  'HALF_CRIMP' = 'HALF_CRIMP',
-  'OPEN_HAND' = 'OPEN_HAND',
-  POCKET = 'POCKET',
-}
+HangBoardDataSchema.plugin(mongooseAggregatePaginate);
 
-export enum HangBoardHoldTypes {
-  JUG = 'JUG',
-  CRIMP = 'CRIMP',
-  PINCH = 'PINCH',
-  SLOPER = 'SLOPER',
-}
+const HangBoardDatas = mongoose.model<HangBoardData>(
+  'HangBoardData',
+  HangBoardDataSchema,
+);
 
-export enum HangBoardHoldSizes {
-  '6mm' = '6mm',
-  '8mm' = '8mm',
-  '10mm' = '10mm',
-  '12mm' = '12mm',
-  '14mm' = '14mm',
-  '18mm' = '18mm',
-  '20mm' = '20mm',
-  '40mm' = '40mm',
-}
+export default HangBoardDatas;
