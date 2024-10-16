@@ -1,14 +1,15 @@
 import mongoose, { ObjectId, Schema } from 'mongoose';
-import { KeyMoveTypes } from '../../constants/enums';
+import { ClimbingTypes, KeyMoveTypes } from '../../constants/enums';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 //this object will be per route per climb
 export interface OutdoorClimbData {
   _id: ObjectId;
   userId: ObjectId;
-  climbId: ObjectId;
   //route specific info
   routeId: ObjectId;
+  difficulty: number;
+  type: ClimbingTypes;
   didSend: boolean;
   numberOfAttempts: number;
   percievedDifficulty?: number;
@@ -19,21 +20,14 @@ export interface OutdoorClimbData {
   images?: string[];
   notes?: string;
   //conditions?: string;
-  date: Date;
 }
 
 const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
   {
-    _id: Schema.Types.ObjectId,
+    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      index: true,
-      required: true,
-    },
-    climbId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Climb',
       index: true,
       required: true,
     },
@@ -41,6 +35,15 @@ const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
       type: Schema.Types.ObjectId,
       ref: 'Route',
       index: true,
+      required: true,
+    },
+    difficulty: {
+      type: Number,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: Object.values(ClimbingTypes),
       required: true,
     },
     didSend: {
@@ -79,7 +82,6 @@ const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
       required: false,
       default: '',
     },
-    date: { type: Date, default: Date.now, index: true, required: true },
   },
   {
     timestamps: true,

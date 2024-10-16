@@ -8,7 +8,7 @@ import mainRouter from './routers/v1/main.router';
 import { connect } from './database/db';
 import keycloack from './utils/keycloack';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3010;
 
 (async () => {
   try {

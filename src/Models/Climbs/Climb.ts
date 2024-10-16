@@ -1,20 +1,30 @@
 import mongoose, { ObjectId, Schema } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import { GymClimbData } from './GymData';
+import { OutdoorClimbData } from './OutdoorData';
+
+export interface ClimbResponse {
+  climb: Climb;
+  gymData?: GymClimbData | null;
+  outdoorData?: OutdoorClimbData | null;
+}
 
 export interface Climb {
   _id: ObjectId;
   userId: ObjectId;
   areaId: ObjectId;
+  isGymClimb: boolean;
   gymDataId?: ObjectId;
   outdoorDataId?: ObjectId;
   startTime: string;
   endTime: string;
-  date: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const ClimbSchema = new Schema<Climb>(
   {
-    _id: Schema.Types.ObjectId,
+    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -27,15 +37,22 @@ export const ClimbSchema = new Schema<Climb>(
       index: true,
       required: true,
     },
+    isGymClimb: {
+      type: Boolean,
+      required: true,
+      index: true,
+    },
     gymDataId: {
       type: Schema.Types.ObjectId,
       ref: 'GymClimbData',
       required: false,
+      default: null,
     },
     outdoorDataId: {
       type: Schema.Types.ObjectId,
       ref: 'OutdoorClimbData',
       required: false,
+      default: null,
     },
     startTime: {
       type: String,
@@ -45,7 +62,6 @@ export const ClimbSchema = new Schema<Climb>(
       type: String,
       required: true,
     },
-    date: { type: Date, default: Date.now, index: true, required: true },
   },
   {
     timestamps: true,

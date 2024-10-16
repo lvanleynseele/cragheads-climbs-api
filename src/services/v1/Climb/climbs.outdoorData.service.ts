@@ -4,7 +4,7 @@ import OutdoorClimbDatas, {
 } from '../../../Models/Climbs/OutdoorData';
 
 const findById = async (climbId: string | ObjectId) => {
-  return await OutdoorClimbDatas.findById({ climbId });
+  return await OutdoorClimbDatas.findById(climbId);
 };
 
 const findByProfileId = async (userId: string | ObjectId) => {

@@ -15,78 +15,88 @@ export interface Profile {
   //bookmarked areas and climbs
   myRouteIds: ObjectId[];
   myAreaIds: ObjectId[];
-  myClimbIds: ObjectId[];
+  climbIds: ObjectId[];
+  recorderIds: ObjectId[];
   postIds: ObjectId[];
   date: Date;
 }
 
-export const ProfileSchema = new Schema<Profile>({
-  _id: Schema.Types.ObjectId,
-  firstName: {
-    type: String,
-    required: true,
-    index: true,
+export const ProfileSchema = new Schema<Profile>(
+  {
+    // _id: Schema.Types.ObjectId,
+    firstName: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      index: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    dateOfBirth: {
+      type: Date,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: false,
+      enum: Object.values(Roles),
+      default: Roles.USER,
+    },
+    photo: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    friendIds: {
+      type: [Schema.Types.ObjectId],
+      required: false,
+      default: [],
+      index: true,
+    },
+    myRouteIds: {
+      type: [Schema.Types.ObjectId],
+      required: false,
+      default: [],
+    },
+    myAreaIds: {
+      type: [Schema.Types.ObjectId],
+      required: false,
+      default: [],
+    },
+    climbIds: {
+      type: [Schema.Types.ObjectId],
+      required: false,
+      default: [],
+      index: true,
+    },
+    recorderIds: {
+      type: [Schema.Types.ObjectId],
+      required: false,
+      default: [],
+      index: true,
+    },
+    postIds: {
+      type: [Schema.Types.ObjectId],
+      required: false,
+      default: [],
+      index: true,
+    },
   },
-  lastName: {
-    type: String,
-    required: true,
-    index: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    index: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    index: true,
-  },
-  dateOfBirth: {
-    type: Date,
-    required: true,
-  },
-  role: {
-    type: String,
-    required: false,
-    enum: Object.values(Roles),
-    default: Roles.USER,
-  },
-  photo: {
-    type: String,
-    required: false,
-  },
-  friendIds: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    default: [],
-    index: true,
-  },
-  myRouteIds: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    default: [],
-  },
-  myAreaIds: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    default: [],
-  },
-  myClimbIds: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    default: [],
-    index: true,
-  },
-  postIds: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    default: [],
-    index: true,
-  },
-  date: { type: Date, default: Date.now },
-});
+  { timestamps: true },
+);
 
 // ProfileSchema.index({
 //   username: 'text',

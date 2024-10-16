@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongoose';
+import { ObjectId, Schema } from 'mongoose';
 import Profiles, { Profile } from '../../../Models/Profile/Profile';
 
 const findProfileById = async (
@@ -14,13 +14,13 @@ const findProfileById = async (
 };
 
 const addClimb = async (
-  profileId: string | ObjectId,
+  profileId: string | Schema.Types.ObjectId,
   climbId: string | ObjectId,
 ) => {
   try {
     const response = await Profiles.updateOne(
       { _id: profileId },
-      { $addToSet: { myClimbIds: climbId } },
+      { $addToSet: { climbIds: climbId } },
     );
 
     return response;
@@ -36,7 +36,7 @@ const removeClimb = async (
   try {
     const response = await Profiles.updateOne(
       { _id: profileId },
-      { $pull: { myClimbIds: climbId } as any },
+      { $pull: { climbIds: climbId } as any },
     );
 
     return response;

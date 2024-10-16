@@ -9,12 +9,12 @@ import {
 export interface GymClimbData {
   _id: ObjectId;
   userId: ObjectId;
-  climbId: ObjectId;
   //route specific info
   type: ClimbingTypes;
+  difficulty: number;
   didSend: boolean;
   numberOfAttempts: number;
-  difficulty: number;
+
   percievedDifficulty?: number;
   keyHolds?: GymHoldTypes[];
   keyMoves?: KeyMoveTypes[];
@@ -26,22 +26,21 @@ export interface GymClimbData {
 
 const GymClimbDataSchema = new Schema<GymClimbData>(
   {
-    _id: Schema.Types.ObjectId,
+    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       index: true,
       required: true,
     },
-    climbId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Climb',
-      index: true,
-      required: true,
-    },
     type: {
       type: String,
       enum: Object.values(ClimbingTypes),
+      required: true,
+      index: true,
+    },
+    difficulty: {
+      type: Number,
       required: true,
       index: true,
     },
@@ -53,11 +52,6 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
     numberOfAttempts: {
       type: Number,
       required: false,
-      index: true,
-    },
-    difficulty: {
-      type: Number,
-      required: true,
       index: true,
     },
     percievedDifficulty: {

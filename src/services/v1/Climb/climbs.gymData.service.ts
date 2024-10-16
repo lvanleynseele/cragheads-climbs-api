@@ -2,7 +2,7 @@ import { ObjectId } from 'mongoose';
 import GymClimbDatas, { GymClimbData } from '../../../Models/Climbs/GymData';
 
 const findById = async (climbId: string | ObjectId) => {
-  return await GymClimbDatas.findById({ climbId });
+  return await GymClimbDatas.findById(climbId);
 };
 
 const findByProfileId = async (userId: string | ObjectId) => {

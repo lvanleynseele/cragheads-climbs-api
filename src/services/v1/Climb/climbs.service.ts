@@ -1,13 +1,13 @@
 import { ObjectId } from 'mongoose';
-import Climbs, { Climb } from '../../../Models/Climbs/Climb';
+import Climbs, { Climb, ClimbResponse } from '../../../Models/Climbs/Climb';
 import profileService from '../Profile/profile.service';
 import gymClimbDataService from './climbs.gymData.service';
 import outdoorClimbDataService from './climbs.outdoorData.service';
 import { GymClimbData } from '../../../Models/Climbs/GymData';
 import { OutdoorClimbData } from '../../../Models/Climbs/OutdoorData';
 
-const findById = async (climbId: string | ObjectId) => {
-  const climb = await Climbs.findById({ climbId });
+const findById = async (climbId: string | ObjectId): Promise<ClimbResponse> => {
+  const climb = await Climbs.findById(climbId);
   if (!climb) {
     throw new Error('Climb not found');
   }
@@ -24,17 +24,19 @@ const findById = async (climbId: string | ObjectId) => {
     return { climb, outdoorData };
   }
 
-  return climb;
+  return { climb };
 };
 
-const findByProfileId = async (profileId: string | ObjectId) => {
+const findByProfileId = async (
+  profileId: string | ObjectId,
+): Promise<ClimbResponse[]> => {
   const profile = await profileService.findProfileById(profileId);
 
-  let climbs: Object[] = [];
+  let climbs: ClimbResponse[] = [];
 
-  if (profile && profile.myClimbIds) {
+  if (profile && profile.climbIds) {
     await Promise.all(
-      profile.myClimbIds.map(async climbId => {
+      profile.climbIds.map(async climbId => {
         const climb = await findById(climbId);
         climbs.push(climb);
       }),
@@ -44,7 +46,7 @@ const findByProfileId = async (profileId: string | ObjectId) => {
   return climbs;
 };
 
-const findAllClimbs = async () => {
+const findAllClimbs = async (): Promise<Climb[]> => {
   return await Climbs.find({}); //collections.climbs.find({}).toArray();
 };
 
@@ -53,17 +55,17 @@ const addClimb = async (
   climb: Climb,
   gymData?: GymClimbData,
   outdoorData?: OutdoorClimbData,
-) => {
+): Promise<Climb> => {
   await Climbs.validate(climb);
 
   if (gymData) {
-    await gymClimbDataService.add(gymData);
-    climb.gymDataId = gymData._id;
+    const gymResponse = await gymClimbDataService.add(gymData);
+    climb.gymDataId = gymResponse._id;
   }
 
   if (outdoorData) {
-    await outdoorClimbDataService.add(outdoorData);
-    climb.outdoorDataId = outdoorData._id;
+    const outdoorResponse = await outdoorClimbDataService.add(outdoorData);
+    climb.outdoorDataId = outdoorResponse._id;
   }
 
   const result = await Climbs.create(climb);
@@ -78,7 +80,7 @@ const updateClimb = async (
   climb: Climb,
   gymData?: GymClimbData,
   outdoorData?: OutdoorClimbData,
-) => {
+): Promise<Climb | null> => {
   await Climbs.validate(climb);
 
   if (gymData) {
@@ -97,7 +99,7 @@ const updateClimb = async (
 const deleteClimb = async (
   id: string | ObjectId,
   profileId: string | ObjectId,
-) => {
+): Promise<Climb | null> => {
   const result = await Climbs.findByIdAndDelete({ _id: id });
   if (result && result.gymDataId) {
     await gymClimbDataService.remove(result.gymDataId);
