@@ -53,4 +53,6 @@ const Preferences = mongoose.model<Preference>(
   preferencesSchema,
 );
 
+Preferences.ensureIndexes();
+
 export default Preferences;

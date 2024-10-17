@@ -1,7 +1,8 @@
 import express from 'express';
 import climbsService from '../../services/v1/Climb/climbs.service';
-import { Climb } from '../../Models/Climbs/Climb';
-import { GymClimbData } from '../../Models/Climbs/GymData';
+import Climbs, { Climb } from '../../Models/Climbs/Climb';
+import GymClimbDatas, { GymClimbData } from '../../Models/Climbs/GymData';
+import { ObjectId } from 'mongoose';
 
 const climbsRouter = express.Router();
 climbsRouter.use(express.json());

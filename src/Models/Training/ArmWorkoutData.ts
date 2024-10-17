@@ -70,4 +70,6 @@ const ArmWorkoutDatas = mongoose.model<ArmWorkoutData>(
   ArmWorkoutDataSchema,
 );
 
+ArmWorkoutDatas.ensureIndexes();
+
 export default ArmWorkoutDatas;

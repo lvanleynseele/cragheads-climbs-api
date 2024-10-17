@@ -70,4 +70,6 @@ const LegWorkoutDatas = mongoose.model<LegWorkoutData>(
   LegWorkoutDataSchema,
 );
 
+LegWorkoutDatas.ensureIndexes();
+
 export default LegWorkoutDatas;

@@ -95,4 +95,6 @@ const TrainingDatas = mongoose.model<TrainingData>(
   TrainingDataSchema,
 );
 
+TrainingDatas.ensureIndexes();
+
 export default TrainingDatas;

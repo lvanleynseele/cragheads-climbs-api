@@ -80,4 +80,6 @@ export const CampusBoardDatas = mongoose.model<CampusBoardData>(
   CampusBoardDataSchema,
 );
 
+CampusBoardDatas.ensureIndexes();
+
 export default CampusBoardDatas;

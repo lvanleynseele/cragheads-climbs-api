@@ -103,4 +103,6 @@ const HangBoardDatas = mongoose.model<HangBoardData>(
   HangBoardDataSchema,
 );
 
+HangBoardDatas.ensureIndexes();
+
 export default HangBoardDatas;

@@ -74,4 +74,6 @@ const CardioWorkoutDatas = mongoose.model<CardioWorkoutData>(
   CardioWorkoutDataSchema,
 );
 
+CardioWorkoutDatas.ensureIndexes();
+
 export default CardioWorkoutDatas;

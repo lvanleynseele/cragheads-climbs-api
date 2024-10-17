@@ -12,10 +12,19 @@ export interface ClimbResponse {
 export interface Climb {
   _id: ObjectId;
   userId: ObjectId;
+  username: string;
   areaId: ObjectId;
+  //climb data
   isGymClimb: boolean;
   gymDataIds?: ObjectId[];
   outdoorDataIds?: ObjectId[];
+  //content
+  friendIds?: ObjectId[]; //tag friends on climb
+  likes?: number;
+  likeIds?: ObjectId[];
+  caption?: string;
+  images?: string[];
+  //time of climb
   startTime: string;
   endTime: string;
   createdAt: Date;

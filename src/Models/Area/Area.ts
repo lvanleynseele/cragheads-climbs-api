@@ -19,8 +19,6 @@ export interface ClimbingArea {
   state?: string;
   country: string;
   zipCode?: string;
-  latitude?: number;
-  longitude?: number;
   location?: [number, number];
   tags?: ClimbingAreaTags[];
   facilities?: ClimbingAreaFacilities[];
@@ -74,14 +72,6 @@ export const AreaSchema = new Schema<ClimbingArea>({
   },
   zipCode: {
     type: String,
-    required: false,
-  },
-  latitude: {
-    type: Number,
-    required: false,
-  },
-  longitude: {
-    type: Number,
     required: false,
   },
   location: {
