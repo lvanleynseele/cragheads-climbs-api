@@ -3,9 +3,9 @@ import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import { CardioExerciseTypes } from '../../constants/enums';
 
 export interface CardioWorkoutData {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
-  workoutId: ObjectId;
+  trainingId: ObjectId;
   exerciseName: CardioExerciseTypes;
   duration: number; // Duration of the workout in minutes
   distance?: number; // Distance covered during the workout (if applicable)
@@ -14,8 +14,8 @@ export interface CardioWorkoutData {
   maxHeartRate?: number; // Maximum heart rate during the workout
   intensity: number; // Subjective measure of workout intensity
   notes?: string; // Any additional notes about the workout
-  createdAt: Date; // Date of the workout session
-  updatedAt: Date;
+  createdAt?: Date; // Date of the workout session
+  updatedAt?: Date;
 }
 
 const CardioWorkoutDataSchema = new Schema<CardioWorkoutData>(
@@ -25,15 +25,17 @@ const CardioWorkoutDataSchema = new Schema<CardioWorkoutData>(
       ref: 'Profile',
       required: true,
     },
-    workoutId: {
+    trainingId: {
       type: Schema.Types.ObjectId,
       ref: 'Workout',
       required: true,
+      index: true,
     },
     exerciseName: {
       type: String,
       enum: Object.values(CardioExerciseTypes),
       required: true,
+      index: true,
     },
     duration: {
       type: Number,
