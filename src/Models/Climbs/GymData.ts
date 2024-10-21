@@ -20,7 +20,6 @@ export interface GymClimbData {
   keyMoves?: KeyMoveTypes[];
   //content
   beta?: string; //not a route beta, maybe should just be notes
-  images?: string[];
   notes?: string;
   //meta
   createdAt?: Date;
@@ -83,11 +82,6 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
       type: String,
       required: false,
       default: '',
-    },
-    images: {
-      type: [String],
-      required: false,
-      default: [],
     },
     notes: {
       type: String,

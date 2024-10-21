@@ -45,36 +45,6 @@ climbsRouter.get('/', async (req, res) => {
   }
 });
 
-// climbsRouter.get('/gym-climbs/:profileId', async (req, res) => {
-//   try {
-//     const profileId = req.params.profileId;
-//     if (!profileId) {
-//       res.status(400).send('profileId is required');
-//     }
-
-//     const climbs = await climbsService.findGymClimbs(profileId);
-
-//     res.status(200).send(climbs);
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// });
-
-// climbsRouter.get('/outdoor-climbs/:profileId', async (req, res) => {
-//   try {
-//     const profileId = req.params.profileId;
-//     if (!profileId) {
-//       res.status(400).send('profileId is required');
-//     }
-
-//     const climbs = await climbsService.findOutdoorClimbs(profileId);
-
-//     res.status(200).send(climbs);
-//   } catch (error) {
-//     res.status(500).send(error);
-//   }
-// });
-
 climbsRouter.post('/:profileId', async (req, res) => {
   try {
     const climb = req.body.climb;

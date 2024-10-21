@@ -5,6 +5,9 @@ import gymClimbDataService from './climbs.gymData.service';
 import outdoorClimbDataService from './climbs.outdoorData.service';
 import { GymClimbData } from '../../../Models/Climbs/GymData';
 import { OutdoorClimbData } from '../../../Models/Climbs/OutdoorData';
+import areaInteractionService from '../Area/area.interactions.service';
+import { AreaInteractionTypes } from '../../../constants/enums';
+import routeInteractionService from '../Route/routes.interactions.service';
 
 const findById = async (climbId: string | ObjectId) => {
   const climb = await Climbs.findById(climbId);
@@ -89,7 +92,39 @@ const addClimb = async (
 
   await profileService.addClimb(profileId, result._id);
 
+  handleAddClimbInteractions(profileId, result, outdoorData);
+
   return result;
+};
+
+const handleAddClimbInteractions = (
+  profileId: string | ObjectId,
+  climb: Climb,
+  outdoorData?: OutdoorClimbData[],
+) => {
+  areaInteractionService.addInteraction(
+    climb.areaId,
+    AreaInteractionTypes.CLIMB,
+    profileId,
+  );
+
+  outdoorData?.forEach(data => {
+    routeInteractionService.addInteraction(
+      data.routeId,
+      AreaInteractionTypes.CLIMB,
+      profileId,
+    );
+  });
+
+  if (climb.images) {
+    climb.images.forEach(() => {
+      areaInteractionService.addInteraction(
+        climb.areaId,
+        AreaInteractionTypes.PHOTO,
+        profileId,
+      );
+    });
+  }
 };
 
 const updateClimb = async (
