@@ -15,49 +15,54 @@ const findById = async (climbId: string | ObjectId) => {
     throw new Error('Climb not found');
   }
 
-  if (climb.gymDataIds) {
-    const gymData = await Promise.all(
-      climb.gymDataIds.map(async gymDataId => {
-        return await gymClimbDataService.findById(gymDataId);
-      }),
-    );
-
-    return { climb, gymData };
-  }
-
-  if (climb.outdoorDataIds) {
-    const outdoorData = await Promise.all(
-      climb.outdoorDataIds.map(async outdoorDataId => {
-        return await outdoorClimbDataService.findById(outdoorDataId);
-      }),
-    );
-    return { climb, outdoorData };
+  if (climb.isGymClimb) {
+    const gymData = await gymClimbDataService.findByClimbId(climbId);
+    if (gymData.length > 0) {
+      return { climb, gymData };
+    }
+  } else {
+    const outdoorData = await outdoorClimbDataService.findByClimbId(climbId);
+    if (outdoorData.length > 0) {
+      return { climb, outdoorData };
+    }
   }
 
   return { climb };
 };
 
-const findByProfileId = async (profileId: string | ObjectId) =>
+const findByProfileId = async (userId: string | ObjectId) =>
   //: Promise<ClimbResponse[]>
   {
-    const profile = await profileService.findProfileById(profileId);
+    return await Climbs.find({ userId });
 
-    let climbs: Object[] = [];
-
-    if (profile && profile.climbIds) {
-      await Promise.all(
-        profile.climbIds.map(async climbId => {
-          const climb = await findById(climbId);
-          climbs.push(climb);
-        }),
-      );
-    }
-
-    return climbs;
+    //// match on userid not working
+    // return await Climbs.aggregate([
+    //   // {
+    //   //   $match: {
+    //   //     userId,
+    //   //   },
+    //   // },
+    //   {
+    //     $lookup: {
+    //       from: 'gymclimbdatas',
+    //       localField: '_id',
+    //       foreignField: 'climbId',
+    //       as: 'gymDatas',
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: 'outdoorclimbdatas',
+    //       localField: '_id',
+    //       foreignField: 'climbId',
+    //       as: 'outdoorDatas',
+    //     },
+    //   },
+    // ]);
   };
 
 const findAllClimbs = async (): Promise<Climb[]> => {
-  return await Climbs.find({}); //collections.climbs.find({}).toArray();
+  return await Climbs.find({});
 };
 
 const addClimb = async (
@@ -68,27 +73,32 @@ const addClimb = async (
 ): Promise<Climb> => {
   await Climbs.validate(climb);
 
+  const result = await Climbs.create(climb);
+
   if (gymData) {
     const gymResponse = await Promise.all(
       gymData.map(async data => {
+        data.climbId = result._id;
+
         return await gymClimbDataService.add(data);
       }),
     );
 
-    climb.gymDataIds = gymResponse.map(data => data._id);
+    result.gymDataIds = gymResponse.map(data => data._id);
   }
 
   if (outdoorData) {
     const outdoorResponse = await Promise.all(
       outdoorData.map(async data => {
+        data.climbId = result._id;
         return await outdoorClimbDataService.add(data);
       }),
     );
 
-    climb.outdoorDataIds = outdoorResponse.map(data => data._id);
+    result.outdoorDataIds = outdoorResponse.map(data => data._id);
   }
 
-  const result = await Climbs.create(climb);
+  result.save();
 
   await profileService.addClimb(profileId, result._id);
 

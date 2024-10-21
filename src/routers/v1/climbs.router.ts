@@ -1,7 +1,6 @@
 import express from 'express';
 import climbsService from '../../services/v1/Climb/climbs.service';
-import Climbs, { Climb } from '../../Models/Climbs/Climb';
-import GymClimbDatas, { GymClimbData } from '../../Models/Climbs/GymData';
+
 import { ObjectId } from 'mongoose';
 
 const climbsRouter = express.Router();
@@ -9,7 +8,7 @@ climbsRouter.use(express.json());
 
 climbsRouter.get('/by-profile/:profileId', async (req, res) => {
   try {
-    const profileId = req.params.profileId;
+    const profileId = req.params.profileId as unknown as ObjectId;
     if (!profileId) {
       res.status(400).send('profileId is required');
     }

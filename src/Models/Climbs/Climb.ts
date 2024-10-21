@@ -38,7 +38,7 @@ export const ClimbSchema = new Schema<Climb>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'Profile',
+      // ref: 'Profile',
       index: true,
       required: true,
     },
@@ -89,6 +89,10 @@ export const ClimbSchema = new Schema<Climb>(
 ClimbSchema.plugin(mongooseAggregatePaginate);
 
 const Climbs = mongoose.model<Climb>('Climb', ClimbSchema);
+
+// Climbs.createCollection();
+
+// Climbs.recompileSchema();
 
 Climbs.ensureIndexes();
 

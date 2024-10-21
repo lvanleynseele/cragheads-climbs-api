@@ -9,6 +9,12 @@ const findByProfileId = async (userId: string | ObjectId) => {
   return await GymClimbDatas.find({ userId });
 };
 
+const findByClimbId = async (climbId: string | ObjectId) => {
+  return await GymClimbDatas.find({
+    climbId,
+  });
+};
+
 const findAll = async () => {
   return await GymClimbDatas.find({});
 };
@@ -16,15 +22,13 @@ const findAll = async () => {
 const add = async (gymData: GymClimbData) => {
   await GymClimbDatas.validate(gymData);
 
-  const result = await GymClimbDatas.create(gymData);
-  return result;
+  return await GymClimbDatas.create(gymData);
 };
 
 const update = async (gymData: GymClimbData) => {
   await GymClimbDatas.validate(gymData);
 
-  const result = await GymClimbDatas.updateOne(gymData);
-  return result;
+  return await GymClimbDatas.updateOne(gymData);
 };
 
 const remove = async (_id: string | ObjectId) => {
@@ -34,6 +38,7 @@ const remove = async (_id: string | ObjectId) => {
 const gymClimbDataService = {
   findById,
   findByProfileId,
+  findByClimbId,
   findAll,
   add,
   update,

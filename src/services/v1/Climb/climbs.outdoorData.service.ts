@@ -11,6 +11,12 @@ const findByProfileId = async (userId: string | ObjectId) => {
   return await OutdoorClimbDatas.find({ userId });
 };
 
+const findByClimbId = async (climbId: string | ObjectId) => {
+  return await OutdoorClimbDatas.find({
+    climbId,
+  });
+};
+
 const findAll = async () => {
   return await OutdoorClimbDatas.find({});
 };
@@ -36,6 +42,7 @@ const remove = async (_id: string | ObjectId) => {
 const outdoorClimbDataService = {
   findById,
   findByProfileId,
+  findByClimbId,
   findAll,
   add,
   update,
