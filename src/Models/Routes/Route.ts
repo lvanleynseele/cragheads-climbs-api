@@ -1,4 +1,9 @@
-import { ClimbingTypes } from '../../constants/enums';
+import {
+  ClimbingTypes,
+  OutdoorRockFeatures,
+  OutdoorRockQuality,
+  OutdoorRockTypes,
+} from '../../constants/enums';
 import mongoose, { ObjectId, Schema } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
@@ -14,7 +19,7 @@ export interface Route {
   description: string;
   accessDescription: string;
   //content
-  images: string[];
+  images?: string[];
   reviewIds?: ObjectId[]; //this should come from aggregation, not stored here
   betaIds?: ObjectId[]; //this should come from aggregation, not stored here
   //location
@@ -22,141 +27,170 @@ export interface Route {
   city?: string;
   state?: string;
   country?: string;
-  latitude?: number;
-  longitude?: number;
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+  //rock details
+  rockType?: OutdoorRockTypes;
+  rockQuality?: OutdoorRockQuality;
+  rockFeatures?: OutdoorRockFeatures[];
   //meta
+  active: boolean;
+  verified: boolean;
+  interactionIds?: ObjectId[];
   creatorId: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export enum OutdoorRockFeatures {
-  SLAB = 'SLAB',
-  VERTICAL = 'VERTICAL',
-  OVERHANG = 'OVERHANG',
-  ROOF = 'ROOF',
-  DIHEDRAL = 'DIHEDRAL',
-  ARETE = 'ARETE',
-  CRACK = 'CRACK',
-  FACE = 'FACE',
-  OFFWIDTH = 'OFFWIDTH',
-  CHIMNEY = 'CHIMNEY',
-  CORNER = 'CORNER',
-  ROOF_CRACK = 'ROOF_CRACK',
-  ROOF_FACE = 'ROOF_FACE',
-  ROOF_ARETE = 'ROOF_ARETE',
-  ROOF_DIHEDRAL = 'ROOF_DIHEDRAL',
-  ROOF_CHIMNEY = 'ROOF_CHIMNEY',
-  ROOF_OFFWIDTH = 'ROOF_OFFWIDTH',
-  ROOF_CORNER = 'ROOF_CORNER',
-  ROOF_SLAB = 'ROOF_SLAB',
-  ROOF_VERTICAL = 'ROOF_VERTICAL',
-  ROOF_UNKNOWN = 'ROOF_UNKNOWN',
-  UNKNOWN = 'UNKNOWN',
-}
+export const RouteSchema = new Schema<Route>(
+  {
+    areaId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Area',
+      required: true,
+      index: 1,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      index: 1,
+    },
+    type: {
+      type: String,
+      enum: Object.values(ClimbingTypes),
+      required: true,
+    },
+    difficulty: {
+      type: Number,
+      required: true,
+    },
+    angle: {
+      type: Number,
+      required: false,
+    },
+    height: {
+      type: Number,
+      required: false,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    accessDescription: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    images: {
+      type: [String],
+      required: false,
+      default: [],
+    },
+    reviewIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'RouteReview',
+      required: false,
+      default: [],
+    },
+    betaIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'RouteBeta',
+      required: false,
+      default: [],
+    },
+    address: {
+      type: String,
+      required: false,
+      index: true,
+    },
+    city: {
+      type: String,
+      required: false,
+      index: 1,
+    },
+    state: {
+      type: String,
+      required: false,
+      index: 1,
+    },
+    country: {
+      type: String,
+      required: false,
+      index: 1,
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+    rockType: {
+      type: String,
+      enum: Object.values(OutdoorRockTypes),
+      required: false,
+      index: 1,
+    },
+    rockQuality: {
+      type: String,
+      enum: Object.values(OutdoorRockQuality),
+      required: false,
+      index: 1,
+    },
+    rockFeatures: {
+      type: [String],
+      enum: Object.values(OutdoorRockFeatures),
+      required: false,
+      index: 1,
+    },
+    active: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    verified: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    interactionIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Interaction',
+      required: false,
+      default: [],
+    },
+    creatorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+  },
+  { timestamps: true },
+);
 
-export enum OutdoorRockTypes {
-  GRANITE = 'GRANITE',
-  SANDSTONE = 'SANDSTONE',
-  LIMESTONE = 'LIMESTONE',
-  QUARTZITE = 'QUARTZITE',
-  GNEISS = 'GNEISS',
-  SCHIST = 'SCHIST',
-  BASALT = 'BASALT',
-  RHYOLITE = 'RHYOLITE',
-  TRACHYTE = 'TRACHYTE',
-  DACITE = 'DACITE',
-  ANDESITE = 'ANDESITE',
-  TUFF = 'TUFF',
-  CONGLOMERATE = 'CONGLOMERATE',
-  SHIST = 'SHIST',
-  UNKNOWN = 'UNKNOWN',
-}
+RouteSchema.index({ location: '2dsphere' });
 
-export enum OutdoorRockQuality {
-  SOLID = 'SOLID',
-  LOOSE = 'LOOSE',
-  SANDY = 'SANDY',
-  CHOSSED = 'CHOSSED',
-  UNKNOWN = 'UNKNOWN',
-}
-
-export const RouteSchema = new Schema<Route>({
-  _id: {
-    type: Schema.Types.ObjectId,
-    ref: 'Climb',
-  },
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-    index: true,
-  },
-  description: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  accessDescription: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  difficulty: {
-    type: Number,
-    required: true,
-  },
-  images: {
-    type: [String],
-    required: false,
-  },
-  reviewIds: {
-    type: [Schema.Types.ObjectId],
-    ref: 'RouteReview',
-    required: false,
-  },
-  betaIds: {
-    type: [Schema.Types.ObjectId],
-    ref: 'RouteBeta',
-    required: false,
-  },
-  type: {
-    type: String,
-    enum: Object.values(ClimbingTypes),
-    required: true,
-    index: true,
-  },
-  address: {
-    type: String,
-    required: false,
-  },
-  city: {
-    type: String,
-    required: true,
-    index: true,
-  },
-  state: {
-    type: String,
-    required: false,
-    index: true,
-  },
-  country: {
-    type: String,
-    required: true,
-    index: true,
-  },
-  latitude: {
-    type: Number,
-    required: false,
-  },
-  longitude: {
-    type: Number,
-    required: false,
-  },
+RouteSchema.index({
+  name: 'text',
+  description: 'text',
+  address: 'text',
+  city: 'text',
+  state: 'text',
+  country: 'text',
 });
 
 RouteSchema.plugin(mongooseAggregatePaginate);
 
 const Routes = mongoose.model('Route', RouteSchema);
+
+Routes.ensureIndexes();
 
 export default Routes;

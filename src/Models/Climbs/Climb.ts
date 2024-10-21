@@ -10,10 +10,12 @@ export interface ClimbResponse {
 }
 
 export interface Climb {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
   username: string;
   areaId: ObjectId;
+  // can add climb to a project
+  projectId?: ObjectId;
   //climb data
   isGymClimb: boolean;
   gymDataIds?: ObjectId[];
@@ -27,13 +29,13 @@ export interface Climb {
   //time of climb
   startTime: string;
   endTime: string;
-  createdAt: Date;
-  updatedAt: Date;
+  //meta
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const ClimbSchema = new Schema<Climb>(
   {
-    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'Profile',
@@ -46,6 +48,12 @@ export const ClimbSchema = new Schema<Climb>(
       index: true,
       required: true,
     },
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Project',
+      required: false,
+      index: true,
+    },
     isGymClimb: {
       type: Boolean,
       required: true,
@@ -53,7 +61,7 @@ export const ClimbSchema = new Schema<Climb>(
     },
     gymDataIds: {
       type: [Schema.Types.ObjectId],
-      ref: 'GymClimbData',
+      ref: 'GymClimbDatas',
       required: false,
       default: [],
     },
@@ -66,6 +74,7 @@ export const ClimbSchema = new Schema<Climb>(
     startTime: {
       type: String,
       required: true,
+      index: true,
     },
     endTime: {
       type: String,
@@ -80,5 +89,7 @@ export const ClimbSchema = new Schema<Climb>(
 ClimbSchema.plugin(mongooseAggregatePaginate);
 
 const Climbs = mongoose.model<Climb>('Climb', ClimbSchema);
+
+Climbs.ensureIndexes();
 
 export default Climbs;

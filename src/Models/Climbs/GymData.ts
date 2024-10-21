@@ -7,8 +7,9 @@ import {
 } from '../../constants/enums';
 
 export interface GymClimbData {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
+  climbId: ObjectId;
   //route specific info
   type: ClimbingTypes;
   difficulty: number;
@@ -21,14 +22,22 @@ export interface GymClimbData {
   beta?: string; //not a route beta, maybe should just be notes
   images?: string[];
   notes?: string;
+  //meta
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const GymClimbDataSchema = new Schema<GymClimbData>(
   {
-    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      index: true,
+      required: true,
+    },
+    climbId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Climb',
       index: true,
       required: true,
     },
@@ -97,5 +106,7 @@ const GymClimbDatas = mongoose.model<GymClimbData>(
   'GymClimbDatas',
   GymClimbDataSchema,
 );
+
+GymClimbDatas.ensureIndexes();
 
 export default GymClimbDatas;
