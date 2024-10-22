@@ -121,7 +121,7 @@ const handleAddClimbInteractions = (
   );
 
   outdoorData?.forEach(data => {
-    routeInteractionService.addInteraction(
+    areaInteractionService.addInteraction(
       data.routeId,
       AreaInteractionTypes.CLIMB,
       profileId,
@@ -142,18 +142,8 @@ const handleAddClimbInteractions = (
 const updateClimb = async (
   id: string | ObjectId,
   climb: Climb,
-  gymData?: GymClimbData,
-  outdoorData?: OutdoorClimbData,
 ): Promise<Climb | null> => {
   await Climbs.validate(climb);
-
-  if (gymData) {
-    await gymClimbDataService.update(gymData);
-  }
-
-  if (outdoorData) {
-    await outdoorClimbDataService.update(outdoorData);
-  }
 
   return await Climbs.findByIdAndUpdate({ _id: id }, { $set: climb });
 };

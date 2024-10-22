@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import Climbs from '../../../../Models/Climbs/Climb';
 import OutdoorClimbDatas from '../../../../Models/Climbs/OutdoorData';
 
@@ -42,7 +42,7 @@ const successRatePerDifficulty = async (
   return await OutdoorClimbDatas.aggregate([
     {
       $match: {
-        userId: profileId,
+        userId: new Types.ObjectId(profileId.toString()),
       },
     },
     {
@@ -51,18 +51,22 @@ const successRatePerDifficulty = async (
         successRate: {
           $avg: {
             $cond: {
-              if: { $eq: ['$didSend', 0] },
+              if: { $eq: ['$numberOfAttempts', 0] }, // check if attempts is 0
               then: 0,
-              else: { $divide: ['$didSend', '$numberOfAttempts'] },
+              else: {
+                $divide: [
+                  { $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] } }, // sum of successful sends
+                  { $sum: '$numberOfAttempts' }, // sum of attempts
+                ],
+              },
             },
           },
         },
-
-        success: {
-          $sum: { $didSend: 1 },
+        totalSends: {
+          $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] }, // total number of sends
         },
-        numberOfAttempts: {
-          $sum: '$numberOfAttempts',
+        totalAttempts: {
+          $sum: '$numberOfAttempts', // total number of attempts
         },
       },
     },
@@ -73,7 +77,7 @@ const successRatePerRockType = async (profileId: string | ObjectId) => {
   return await OutdoorClimbDatas.aggregate([
     {
       $match: {
-        userId: profileId,
+        userId: new Types.ObjectId(profileId.toString()),
       },
     },
     {
@@ -82,11 +86,22 @@ const successRatePerRockType = async (profileId: string | ObjectId) => {
         successRate: {
           $avg: {
             $cond: {
-              if: { $eq: ['$didSend', 0] },
+              if: { $eq: ['$numberOfAttempts', 0] }, // check if attempts is 0
               then: 0,
-              else: { $divide: ['$didSend', '$numberOfAttempts'] },
+              else: {
+                $divide: [
+                  { $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] } }, // sum of successful sends
+                  { $sum: '$numberOfAttempts' }, // sum of attempts
+                ],
+              },
             },
           },
+        },
+        totalSends: {
+          $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] }, // total number of sends
+        },
+        totalAttempts: {
+          $sum: '$numberOfAttempts', // total number of attempts
         },
       },
     },
@@ -97,7 +112,7 @@ const successRatePerMoveType = async (profileId: string | ObjectId) => {
   return await OutdoorClimbDatas.aggregate([
     {
       $match: {
-        userId: profileId,
+        userId: new Types.ObjectId(profileId.toString()),
       },
     },
     {
@@ -109,38 +124,32 @@ const successRatePerMoveType = async (profileId: string | ObjectId) => {
         successRate: {
           $avg: {
             $cond: {
-              if: { $eq: ['$didSend', false] },
+              if: { $eq: ['$numberOfAttempts', 0] }, // check if attempts is 0
               then: 0,
-              else: { $divide: ['$didSend', '$numberOfAttempts'] },
+              else: {
+                $divide: [
+                  { $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] } }, // sum of successful sends
+                  { $sum: '$numberOfAttempts' }, // sum of attempts
+                ],
+              },
             },
           },
+        },
+        totalSends: {
+          $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] }, // total number of sends
+        },
+        totalAttempts: {
+          $sum: '$numberOfAttempts', // total number of attempts
         },
       },
     },
   ]);
 };
 
-//for map of places climbed
-const placesClimbed = async (profileId: string | ObjectId) => {
-  return await Climbs.aggregate([
-    {
-      $match: {
-        userId: profileId,
-      },
-    },
-    {
-      $lookup: {
-        from: 'areas',
-        localField: 'areaId',
-        foreignField: '_id',
-        as: 'area',
-      },
-    },
-    {
-      $group: {
-        _id: '$area._id',
-        count: { $sum: 1 },
-      },
-    },
-  ]);
+const outdoorSuccessRateService = {
+  successRatePerDifficulty,
+  successRatePerRockType,
+  successRatePerMoveType,
 };
+
+export default outdoorSuccessRateService;

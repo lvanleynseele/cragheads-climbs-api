@@ -3,6 +3,7 @@ import logger from '../../utils/logger';
 import climbsRouter from './climbs.router';
 import Profiles from '../../Models/Profile/Profile';
 import trainingRouter from './training.router';
+import outdoorDataRouter from './data.climbs.outdoor.router';
 
 const mainRouter = express.Router();
 
@@ -13,6 +14,8 @@ mainRouter.use((req, res, next) => {
 mainRouter.use(express.json());
 mainRouter.use('/climbs', climbsRouter);
 mainRouter.use('/training', trainingRouter);
+
+mainRouter.use('/data', outdoorDataRouter); //TODO: replace with main data router
 
 mainRouter.get('/profile', async (req, res) => {
   try {

@@ -2,9 +2,14 @@ import express from 'express';
 import climbsService from '../../services/v1/Climb/climbs.service';
 
 import { ObjectId } from 'mongoose';
+import gymRouter from './climbs.gym.router';
+import outdoorRouter from './climbs.outdoor.router';
 
 const climbsRouter = express.Router();
 climbsRouter.use(express.json());
+
+climbsRouter.use('/gym-data', gymRouter);
+climbsRouter.use('/outdoor-data', outdoorRouter);
 
 climbsRouter.get('/by-profile/:profileId', async (req, res) => {
   try {
@@ -79,12 +84,7 @@ climbsRouter.put('/:climbId', async (req, res) => {
       res.status(400).send('Climb data is required');
     }
 
-    const result = await climbsService.updateClimb(
-      req.params.climbId,
-      climb,
-      gymData,
-      outdoorData,
-    );
+    const result = await climbsService.updateClimb(req.params.climbId, climb);
 
     res.status(200).send(result);
   } catch (error) {
