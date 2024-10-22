@@ -34,6 +34,10 @@ export interface TrainingData {
 
 const TrainingDataSchema = new Schema<TrainingData>(
   {
+    // _id: {
+    //   type: Schema.Types.ObjectId,
+    //   required: false,
+    // },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'Profile',

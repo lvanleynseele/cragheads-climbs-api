@@ -35,6 +35,10 @@ const remove = async (_id: string | ObjectId) => {
   return await GymClimbDatas.deleteOne({ _id });
 };
 
+const removeByClimbId = async (climbId: string | ObjectId) => {
+  return await GymClimbDatas.deleteMany({ climbId });
+};
+
 const gymClimbDataService = {
   findById,
   findByProfileId,
@@ -43,6 +47,7 @@ const gymClimbDataService = {
   add,
   update,
   remove,
+  removeByClimbId,
 };
 
 export default gymClimbDataService;

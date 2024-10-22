@@ -9,7 +9,7 @@ const findById = async (
   return await HangBoardDatas.findById(trainId);
 };
 
-const findByProfileId: any = async (
+const findByProfileId = async (
   userId: string | ObjectId,
 ): Promise<HangBoardData[]> => {
   return await HangBoardDatas.find({ userId });
@@ -37,6 +37,10 @@ const remove = async (_id: string | ObjectId) => {
   return await HangBoardDatas.deleteOne({ _id });
 };
 
+const removeByTrainingId = async (trainingId: string | ObjectId) => {
+  return await HangBoardDatas.deleteMany({ trainingId });
+};
+
 const hangboardDataService = {
   findById,
   findByProfileId,
@@ -44,6 +48,7 @@ const hangboardDataService = {
   add,
   update,
   remove,
+  removeByTrainingId,
 };
 
 export default hangboardDataService;
