@@ -1,6 +1,5 @@
 import { ObjectId, Types } from 'mongoose';
-import Climbs from '../../../../Models/Climbs/Climb';
-import OutdoorClimbDatas from '../../../../Models/Climbs/OutdoorData';
+import GymClimbDatas from '../../../../Models/Climbs/GymData';
 
 const successRatePerDifficulty = async (
   profileId: string | ObjectId,
@@ -54,10 +53,10 @@ const successRatePerDifficulty = async (
     },
   });
 
-  return await OutdoorClimbDatas.aggregate(pipeline);
+  return await GymClimbDatas.aggregate(pipeline);
 };
 
-const successRatePerRockType = async (
+const successRatePerKeyHolds = async (
   profileId: string | ObjectId,
   timeframe: 'month' | '6 months' | 'year' | 'all time',
 ) => {
@@ -83,33 +82,38 @@ const successRatePerRockType = async (
       break;
   }
 
-  pipeline.push({
-    $group: {
-      _id: '$rockType',
-      successRate: {
-        $avg: {
-          $cond: {
-            if: { $eq: ['$numberOfAttempts', null] }, // check if attempts is 0
-            then: 1,
-            else: {
-              $divide: [
-                { $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] } }, // sum of successful sends
-                { $sum: '$numberOfAttempts' }, // sum of attempts
-              ],
+  pipeline.push(
+    {
+      $unwind: '$keyHolds',
+    },
+    {
+      $group: {
+        _id: '$keyHolds',
+        successRate: {
+          $avg: {
+            $cond: {
+              if: { $eq: ['$numberOfAttempts', null] }, // check if attempts is 0
+              then: 1,
+              else: {
+                $divide: [
+                  { $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] } }, // sum of successful sends
+                  { $sum: '$numberOfAttempts' }, // sum of attempts
+                ],
+              },
             },
           },
         },
-      },
-      totalSends: {
-        $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] }, // total number of sends
-      },
-      totalAttempts: {
-        $sum: '$numberOfAttempts', // total number of attempts
+        totalSends: {
+          $sum: { $cond: [{ $eq: ['$didSend', true] }, 1, 0] }, // total number of sends
+        },
+        totalAttempts: {
+          $sum: '$numberOfAttempts', // total number of attempts
+        },
       },
     },
-  });
+  );
 
-  return await OutdoorClimbDatas.aggregate(pipeline);
+  return await GymClimbDatas.aggregate(pipeline);
 };
 
 const successRatePerMoveType = async (
@@ -169,13 +173,13 @@ const successRatePerMoveType = async (
     },
   );
 
-  return await OutdoorClimbDatas.aggregate(pipeline);
+  return await GymClimbDatas.aggregate(pipeline);
 };
 
-const outdoorSuccessRateService = {
+const gymSuccessRateService = {
   successRatePerDifficulty,
-  successRatePerRockType,
+  successRatePerKeyHolds,
   successRatePerMoveType,
 };
 
-export default outdoorSuccessRateService;
+export default gymSuccessRateService;
