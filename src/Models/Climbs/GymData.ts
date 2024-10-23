@@ -21,6 +21,7 @@ export interface GymClimbData {
   //content
   beta?: string; //not a route beta, maybe should just be notes
   notes?: string;
+  rating?: number;
   //meta
   createdAt?: Date;
   updatedAt?: Date;
@@ -87,6 +88,11 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
       type: String,
       required: false,
       default: '',
+    },
+    rating: {
+      type: Number,
+      required: false,
+      default: null,
     },
   },
   {

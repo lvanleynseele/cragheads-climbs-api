@@ -20,6 +20,7 @@ export interface OutdoorClimbData {
   //content
   beta?: string; //convert this on submit to a new RouteBeta object, add to routeBeta collection, and store the id here
   notes?: string;
+  rating?: number;
   //conditions?: string;
   //meta
   createdAt?: Date;
@@ -85,6 +86,11 @@ const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
       type: String,
       required: false,
       default: '',
+    },
+    rating: {
+      type: Number,
+      required: false,
+      default: null,
     },
   },
   {

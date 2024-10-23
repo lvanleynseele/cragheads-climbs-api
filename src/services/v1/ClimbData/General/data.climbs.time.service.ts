@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
-import Climbs from '../../../Models/Climbs/Climb';
+import Climbs from '../../../../Models/Climbs/Climb';
+import { Types } from 'mongoose';
 
 const getClimbsPerMonth = async (profileId: ObjectId | string) => {
   try {
@@ -9,7 +10,7 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
     const startDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      currentDate.getDate() - 30,
+      currentDate.getDate() - 28,
     );
 
     // Adjust startDate to the previous Monday
@@ -34,21 +35,13 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
     const response = await Climbs.aggregate([
       {
         $match: {
-          userId: profileId,
+          userId: new Types.ObjectId(profileId.toString()),
         },
       },
-      {
-        $addFields: {
-          formattedDate: {
-            $dateFromString: {
-              dateString: '$date',
-            },
-          },
-        },
-      },
+
       {
         $match: {
-          formattedDate: {
+          createdAt: {
             $gte: startDate,
           },
         },
@@ -60,8 +53,8 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
               format: '%m/%d',
               date: {
                 $dateFromParts: {
-                  isoWeekYear: { $isoWeekYear: '$formattedDate' },
-                  isoWeek: { $isoWeek: '$formattedDate' },
+                  isoWeekYear: { $isoWeekYear: '$createdAt' },
+                  isoWeek: { $isoWeek: '$createdAt' },
                 },
               },
             },
@@ -121,21 +114,12 @@ const getClimbsPer6Months = async (profileId: ObjectId | string) => {
     const response = await Climbs.aggregate([
       {
         $match: {
-          userId: profileId,
-        },
-      },
-      {
-        $addFields: {
-          formattedDate: {
-            $dateFromString: {
-              dateString: '$date',
-            },
-          },
+          userId: new Types.ObjectId(profileId.toString()),
         },
       },
       {
         $match: {
-          formattedDate: {
+          createdAt: {
             $gte: startDate,
           },
         },
@@ -147,8 +131,8 @@ const getClimbsPer6Months = async (profileId: ObjectId | string) => {
               format: '%m/%d',
               date: {
                 $dateFromParts: {
-                  year: { $year: '$formattedDate' },
-                  month: { $month: '$formattedDate' },
+                  year: { $year: '$createdAt' },
+                  month: { $month: '$createdAt' },
                 },
               },
             },
@@ -206,21 +190,12 @@ const getClimbsPerYear = async (profileId: ObjectId | string) => {
     const response = await Climbs.aggregate([
       {
         $match: {
-          userId: profileId,
-        },
-      },
-      {
-        $addFields: {
-          formattedDate: {
-            $dateFromString: {
-              dateString: '$date',
-            },
-          },
+          userId: new Types.ObjectId(profileId.toString()),
         },
       },
       {
         $match: {
-          formattedDate: {
+          createdAt: {
             $gte: startDate,
           },
         },
@@ -232,8 +207,8 @@ const getClimbsPerYear = async (profileId: ObjectId | string) => {
               format: '%m/%d',
               date: {
                 $dateFromParts: {
-                  year: { $year: '$formattedDate' },
-                  month: { $month: '$formattedDate' },
+                  year: { $year: '$createdAt' },
+                  month: { $month: '$createdAt' },
                 },
               },
             },
@@ -265,16 +240,7 @@ const allTimeClimbs = async (profileId: ObjectId | string) => {
     const response = await Climbs.aggregate([
       {
         $match: {
-          userId: profileId,
-        },
-      },
-      {
-        $addFields: {
-          formattedDate: {
-            $dateFromString: {
-              dateString: '$date',
-            },
-          },
+          userId: new Types.ObjectId(profileId.toString()),
         },
       },
       {
@@ -284,11 +250,11 @@ const allTimeClimbs = async (profileId: ObjectId | string) => {
               format: '%Y-%m',
               date: {
                 $dateFromParts: {
-                  year: { $year: '$formattedDate' },
+                  year: { $year: '$createdAt' },
                   month: {
                     $subtract: [
-                      { $month: '$formattedDate' },
-                      { $mod: [{ $month: '$formattedDate' }, 3] },
+                      { $month: '$createdAt' },
+                      { $mod: [{ $month: '$createdAt' }, 3] },
                     ],
                   },
                 },

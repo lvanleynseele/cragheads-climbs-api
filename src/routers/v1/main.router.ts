@@ -3,7 +3,8 @@ import logger from '../../utils/logger';
 import climbsRouter from './climbs.router';
 import Profiles from '../../Models/Profile/Profile';
 import trainingRouter from './training.router';
-import outdoorDataRouter from './data.climbs.outdoor.router';
+import climbDataRouter from './data/data.climbs.router';
+import trainingDataRouter from './data/data.training.router';
 
 const mainRouter = express.Router();
 
@@ -15,8 +16,10 @@ mainRouter.use(express.json());
 mainRouter.use('/climbs', climbsRouter);
 mainRouter.use('/training', trainingRouter);
 
-mainRouter.use('/data', outdoorDataRouter); //TODO: replace with main data router
+mainRouter.use('/data/climb', climbDataRouter);
+mainRouter.use('/data/training', trainingDataRouter);
 
+//TODO: get rid of this function
 mainRouter.get('/profile', async (req, res) => {
   try {
     const response = await Profiles.find();

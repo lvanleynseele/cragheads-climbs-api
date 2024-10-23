@@ -1,4 +1,4 @@
-const getMonthPipeline = () => {
+export const getMonthPipeline = () => {
   const currentDate = new Date();
 
   // Calculate the start date (30 days ago) and the end date (end of the current month)
@@ -19,7 +19,7 @@ const getMonthPipeline = () => {
   return pipeline;
 };
 
-const get6monthPipeline = () => {
+export const get6monthPipeline = () => {
   const currentDate = new Date();
 
   // Calculate the start date (180 days ago) and the end date (end of the current month)
@@ -40,7 +40,7 @@ const get6monthPipeline = () => {
   return pipeline;
 };
 
-const getYearPipeline = () => {
+export const getYearPipeline = () => {
   const currentDate = new Date();
 
   // Calculate the start date (365 days ago) and the end date (end of the current month)
