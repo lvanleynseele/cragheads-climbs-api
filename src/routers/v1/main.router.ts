@@ -3,8 +3,8 @@ import logger from '../../utils/logger';
 import climbsRouter from './climbs.router';
 import Profiles from '../../Models/Profile/Profile';
 import trainingRouter from './training.router';
-import climbDataRouter from './data/data.climbs.router';
-import trainingDataRouter from './data/data.training.router';
+import climbDataRouter from './dataRouters/climbs.data.router';
+import trainingDataRouter from './dataRouters/training.data.router';
 
 const mainRouter = express.Router();
 
