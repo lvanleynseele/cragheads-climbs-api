@@ -31,7 +31,7 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Profile',
       index: true,
       required: true,
     },
@@ -106,6 +106,8 @@ const GymClimbDatas = mongoose.model<GymClimbData>(
   'GymClimbDatas',
   GymClimbDataSchema,
 );
+
+// GymClimbDatas.recompileSchema();
 
 GymClimbDatas.ensureIndexes();
 
