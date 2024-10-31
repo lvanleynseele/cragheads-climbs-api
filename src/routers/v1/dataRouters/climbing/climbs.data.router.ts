@@ -1,8 +1,8 @@
 import express from 'express';
 import outdoorDataRouter from './climbs.data.outdoor.router';
 import gymDataRouter from './climbs.data.gym.router';
-import climbDataGeneralService from '../../../services/v1/ClimbData/General/data.climb.general.service';
-import climbsDataTimeService from '../../../services/v1/ClimbData/General/data.climbs.time.service';
+import climbDataGeneralService from '../../../../services/v1/ClimbData/General/data.climb.general.service';
+import climbsDataTimeService from '../../../../services/v1/ClimbData/General/data.climbs.time.service';
 
 const climbDataRouter = express.Router();
 climbDataRouter.use(express.json());

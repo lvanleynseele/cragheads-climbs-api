@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import { fillMonths, fillWeeks } from '../../../utils/fillTimeframe';
 import LegWorkoutDatas from '../../../Models/Training/LegWorkoutData';
 
-const getArmsPerMonth = async (profileId: ObjectId | string) => {
+const getLegsPerMonth = async (profileId: ObjectId | string) => {
   try {
     const currentDate = new Date();
 
@@ -68,7 +68,7 @@ const getArmsPerMonth = async (profileId: ObjectId | string) => {
   }
 };
 
-const getArmsPer6Months = async (profileId: ObjectId | string) => {
+const getLegsPer6Months = async (profileId: ObjectId | string) => {
   try {
     const currentDate = new Date();
 
@@ -130,7 +130,7 @@ const getArmsPer6Months = async (profileId: ObjectId | string) => {
   }
 };
 
-const getArmsPerYear = async (profileId: ObjectId | string) => {
+const getLegsPerYear = async (profileId: ObjectId | string) => {
   try {
     const currentDate = new Date();
     const startDate = new Date(
@@ -191,7 +191,7 @@ const getArmsPerYear = async (profileId: ObjectId | string) => {
   }
 };
 
-const allTimeArms = async (profileId: ObjectId | string) => {
+const allTimeLegs = async (profileId: ObjectId | string) => {
   try {
     const response = await LegWorkoutDatas.aggregate([
       {
@@ -233,10 +233,10 @@ const allTimeArms = async (profileId: ObjectId | string) => {
 };
 
 const legProgressionService = {
-  getArmsPerMonth,
-  getArmsPer6Months,
-  getArmsPerYear,
-  allTimeArms,
+  getLegsPerMonth,
+  getLegsPer6Months,
+  getLegsPerYear,
+  allTimeLegs,
 };
 
 export default legProgressionService;

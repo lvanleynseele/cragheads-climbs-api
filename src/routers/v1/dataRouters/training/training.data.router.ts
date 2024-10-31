@@ -1,8 +1,19 @@
 import express from 'express';
-import trainingDataTimeService from '../../../services/v1/TrainingData/data.training.time.service';
+import trainingDataTimeService from '../../../../services/v1/TrainingData/data.training.time.service';
+import armDataRouter from './training.arms.data.router';
+import campusboardDataRouter from './training.campusboard.data.router copy 3';
+import hangboardDataRouter from './training.hangboard.data.router';
+import legDataRouter from './training.legs.data.router';
+import cardioDataRouter from './training.cardio.data.router';
 
 const trainingDataRouter = express.Router();
 trainingDataRouter.use(express.json());
+
+trainingDataRouter.use('/arms', armDataRouter);
+trainingDataRouter.use('/campusboard', campusboardDataRouter);
+trainingDataRouter.use('/carido', cardioDataRouter);
+trainingDataRouter.use('/hangboard', hangboardDataRouter);
+trainingDataRouter.use('/legs', legDataRouter);
 
 trainingDataRouter.get(
   '/over-period/:profileId/:timeframe',
