@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongodb';
-import Climbs from '../../../../Models/Climbs/Climb';
 import { Types } from 'mongoose';
-import { fillMonths, fillWeeks } from '../../../../utils/fillTimeframe';
+import { fillMonths, fillWeeks } from '../../../utils/fillTimeframe';
+import CardioWorkoutDatas from '../../../Models/Training/CardioData';
 
-const getClimbsPerMonth = async (profileId: ObjectId | string) => {
+const getCardioPerMonth = async (profileId: ObjectId | string) => {
   try {
     const currentDate = new Date();
 
@@ -16,7 +16,7 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
 
     const weeks = fillWeeks(startDate);
 
-    const response = await Climbs.aggregate([
+    const response = await CardioWorkoutDatas.aggregate([
       {
         $match: {
           userId: new Types.ObjectId(profileId.toString()),
@@ -43,6 +43,7 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
               },
             },
           },
+          exercise: { $first: '$exerciseName' },
           count: { $sum: 1 },
         },
       },
@@ -56,6 +57,7 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
       const found = response.find(r => r._id === week.label);
       return {
         _id: week.label,
+        exercise: found ? found.exercises : '',
         count: found ? found.count : 0,
       };
     });
@@ -66,7 +68,7 @@ const getClimbsPerMonth = async (profileId: ObjectId | string) => {
   }
 };
 
-const getClimbsPer6Months = async (profileId: ObjectId | string) => {
+const getCardioPer6Months = async (profileId: ObjectId | string) => {
   try {
     const currentDate = new Date();
 
@@ -76,9 +78,9 @@ const getClimbsPer6Months = async (profileId: ObjectId | string) => {
       1,
     );
 
-    const months = fillMonths(startDate);
+    const months = fillMonths(startDate, currentDate);
 
-    const response = await Climbs.aggregate([
+    const response = await CardioWorkoutDatas.aggregate([
       {
         $match: {
           userId: new Types.ObjectId(profileId.toString()),
@@ -104,6 +106,7 @@ const getClimbsPer6Months = async (profileId: ObjectId | string) => {
               },
             },
           },
+          exercise: { $first: '$exerciseName' },
           count: { $sum: 1 },
         },
       },
@@ -116,6 +119,7 @@ const getClimbsPer6Months = async (profileId: ObjectId | string) => {
       const found = response.find(r => r._id === month.label);
       return {
         _id: month.label,
+        exercise: found ? found.exercises : '',
         count: found ? found.count : 0,
       };
     });
@@ -126,7 +130,7 @@ const getClimbsPer6Months = async (profileId: ObjectId | string) => {
   }
 };
 
-const getClimbsPerYear = async (profileId: ObjectId | string) => {
+const getCardioPerYear = async (profileId: ObjectId | string) => {
   try {
     const currentDate = new Date();
     const startDate = new Date(
@@ -137,7 +141,7 @@ const getClimbsPerYear = async (profileId: ObjectId | string) => {
 
     const months = fillMonths(startDate);
 
-    const response = await Climbs.aggregate([
+    const response = await CardioWorkoutDatas.aggregate([
       {
         $match: {
           userId: new Types.ObjectId(profileId.toString()),
@@ -163,6 +167,7 @@ const getClimbsPerYear = async (profileId: ObjectId | string) => {
               },
             },
           },
+          exercise: { $first: '$exerciseName' },
           count: { $sum: 1 },
         },
       },
@@ -175,6 +180,7 @@ const getClimbsPerYear = async (profileId: ObjectId | string) => {
       const found = response.find(r => r._id === month.label);
       return {
         _id: month.label,
+        exercise: found ? found.exercises : '',
         count: found ? found.count : 0,
       };
     });
@@ -185,9 +191,9 @@ const getClimbsPerYear = async (profileId: ObjectId | string) => {
   }
 };
 
-const allTimeClimbs = async (profileId: ObjectId | string) => {
+const allTimeCardio = async (profileId: ObjectId | string) => {
   try {
-    const response = await Climbs.aggregate([
+    const response = await CardioWorkoutDatas.aggregate([
       {
         $match: {
           userId: new Types.ObjectId(profileId.toString()),
@@ -211,6 +217,7 @@ const allTimeClimbs = async (profileId: ObjectId | string) => {
               },
             },
           },
+          exercise: { $first: '$exerciseName' },
           count: { $sum: 1 },
         },
       },
@@ -225,11 +232,11 @@ const allTimeClimbs = async (profileId: ObjectId | string) => {
   }
 };
 
-const climbsDataTimeService = {
-  getClimbsPerMonth,
-  getClimbsPer6Months,
-  getClimbsPerYear,
-  allTimeClimbs,
+const cardioProgressionService = {
+  getCardioPerMonth,
+  getCardioPer6Months,
+  getCardioPerYear,
+  allTimeCardio,
 };
 
-export default climbsDataTimeService;
+export default cardioProgressionService;

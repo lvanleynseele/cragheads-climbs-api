@@ -91,6 +91,8 @@ const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
       type: Number,
       required: false,
       default: null,
+      min: 0,
+      max: 5,
     },
   },
   {

@@ -1,10 +1,6 @@
 import mongoose, { ObjectId, Schema } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
-import {
-  ClimbingTypes,
-  GymHoldTypes,
-  KeyMoveTypes,
-} from '../../constants/enums';
+import { ClimbingTypes, HoldTypes, KeyMoveTypes } from '../../constants/enums';
 
 export interface GymClimbData {
   _id?: ObjectId;
@@ -13,10 +9,11 @@ export interface GymClimbData {
   //route specific info
   type: ClimbingTypes;
   difficulty: number;
+  holdColor?: string;
   didSend: boolean;
   numberOfAttempts: number;
   percievedDifficulty?: number;
-  keyHolds?: GymHoldTypes[];
+  keyHolds?: HoldTypes[];
   keyMoves?: KeyMoveTypes[];
   //content
   beta?: string; //not a route beta, maybe should just be notes
@@ -52,6 +49,11 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
       required: true,
       index: true,
     },
+    holdColor: {
+      type: String,
+      required: false,
+      default: '',
+    },
     didSend: {
       type: Boolean,
       required: true,
@@ -69,7 +71,7 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
     },
     keyHolds: {
       type: [String],
-      enum: Object.values(GymHoldTypes),
+      enum: Object.values(HoldTypes),
       required: false,
       default: [],
     },
@@ -93,6 +95,8 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
       type: Number,
       required: false,
       default: null,
+      min: 0,
+      max: 5,
     },
   },
   {

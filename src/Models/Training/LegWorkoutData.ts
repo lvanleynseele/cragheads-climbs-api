@@ -5,7 +5,7 @@ import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 export interface LegWorkoutData {
   _id?: ObjectId;
   userId: ObjectId;
-  trainingId?: ObjectId; //id of train session
+  trainingId: ObjectId; //id of train session
   exerciseName: LegExerciseTypes;
   sets?: number;
   reps?: number;
@@ -29,7 +29,7 @@ const LegWorkoutDataSchema = new Schema<LegWorkoutData>(
     trainingId: {
       type: Schema.Types.ObjectId,
       ref: 'TrainingData',
-      required: false,
+      required: true,
       index: true,
     },
     exerciseName: {

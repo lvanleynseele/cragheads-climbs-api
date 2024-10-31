@@ -42,7 +42,7 @@ export enum KeyMoveTypes {
   OTHER = 'Other',
 }
 
-export enum GymHoldTypes {
+export enum HoldTypes {
   JUG = 'Jug',
   CRIMP = 'Crimp',
   SLOPER = 'Sloper',
