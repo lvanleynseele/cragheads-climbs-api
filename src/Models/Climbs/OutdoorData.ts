@@ -4,12 +4,14 @@ import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 //this object will be per route per climb
 export interface OutdoorClimbData {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
+  climbId: ObjectId;
   //route specific info
   routeId: ObjectId;
-  difficulty: number;
-  type: ClimbingTypes;
+  difficulty: number; //route difficulty should this be a lookup?
+  type: ClimbingTypes; //route type, could also be from lookup
+  //climb specific info
   didSend: boolean;
   numberOfAttempts: number;
   percievedDifficulty?: number;
@@ -17,17 +19,25 @@ export interface OutdoorClimbData {
   keyMoves?: KeyMoveTypes[];
   //content
   beta?: string; //convert this on submit to a new RouteBeta object, add to routeBeta collection, and store the id here
-  images?: string[];
   notes?: string;
+  rating?: number;
   //conditions?: string;
+  //meta
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
   {
-    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      index: true,
+      required: true,
+    },
+    climbId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Climb',
       index: true,
       required: true,
     },
@@ -72,15 +82,17 @@ const OutdoorClimbDataSchema = new Schema<OutdoorClimbData>(
       required: false,
       default: '',
     },
-    images: {
-      type: [String],
-      required: false,
-      default: [],
-    },
     notes: {
       type: String,
       required: false,
       default: '',
+    },
+    rating: {
+      type: Number,
+      required: false,
+      default: null,
+      min: 0,
+      max: 5,
     },
   },
   {
@@ -94,5 +106,7 @@ const OutdoorClimbDatas = mongoose.model<OutdoorClimbData>(
   'OutdoorClimbData',
   OutdoorClimbDataSchema,
 );
+
+OutdoorClimbDatas.ensureIndexes();
 
 export default OutdoorClimbDatas;

@@ -9,10 +9,14 @@ const findById = async (
   return await ArmWorkoutDatas.findById(trainId);
 };
 
-const findByProfileId: any = async (
+const findByProfileId = async (
   userId: string | ObjectId,
 ): Promise<ArmWorkoutData[]> => {
   return await ArmWorkoutDatas.find({ userId });
+};
+
+const findByTrainingId = async (trainingId: string | ObjectId) => {
+  return await ArmWorkoutDatas.find({ trainingId });
 };
 
 const findAll = async () => {
@@ -37,13 +41,19 @@ const remove = async (_id: string | ObjectId) => {
   return await ArmWorkoutDatas.deleteOne({ _id });
 };
 
+const removeByTrainingId = async (trainingId: string | ObjectId) => {
+  return await ArmWorkoutDatas.deleteMany({ trainingId });
+};
+
 const armDataService = {
   findById,
   findByProfileId,
+  findByTrainingId,
   findAll,
   add,
   update,
   remove,
+  removeByTrainingId,
 };
 
 export default armDataService;

@@ -1,34 +1,40 @@
 import mongoose, { ObjectId, Schema } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
-import {
-  ClimbingTypes,
-  GymHoldTypes,
-  KeyMoveTypes,
-} from '../../constants/enums';
+import { ClimbingTypes, HoldTypes, KeyMoveTypes } from '../../constants/enums';
 
 export interface GymClimbData {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
+  climbId: ObjectId;
   //route specific info
   type: ClimbingTypes;
   difficulty: number;
+  holdColor?: string;
   didSend: boolean;
   numberOfAttempts: number;
   percievedDifficulty?: number;
-  keyHolds?: GymHoldTypes[];
+  keyHolds?: HoldTypes[];
   keyMoves?: KeyMoveTypes[];
   //content
   beta?: string; //not a route beta, maybe should just be notes
-  images?: string[];
   notes?: string;
+  rating?: number;
+  //meta
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const GymClimbDataSchema = new Schema<GymClimbData>(
   {
-    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Profile',
+      index: true,
+      required: true,
+    },
+    climbId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Climb',
       index: true,
       required: true,
     },
@@ -42,6 +48,11 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
       type: Number,
       required: true,
       index: true,
+    },
+    holdColor: {
+      type: String,
+      required: false,
+      default: '',
     },
     didSend: {
       type: Boolean,
@@ -60,7 +71,7 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
     },
     keyHolds: {
       type: [String],
-      enum: Object.values(GymHoldTypes),
+      enum: Object.values(HoldTypes),
       required: false,
       default: [],
     },
@@ -75,15 +86,17 @@ const GymClimbDataSchema = new Schema<GymClimbData>(
       required: false,
       default: '',
     },
-    images: {
-      type: [String],
-      required: false,
-      default: [],
-    },
     notes: {
       type: String,
       required: false,
       default: '',
+    },
+    rating: {
+      type: Number,
+      required: false,
+      default: null,
+      min: 0,
+      max: 5,
     },
   },
   {
@@ -97,5 +110,9 @@ const GymClimbDatas = mongoose.model<GymClimbData>(
   'GymClimbDatas',
   GymClimbDataSchema,
 );
+
+// GymClimbDatas.recompileSchema();
+
+GymClimbDatas.ensureIndexes();
 
 export default GymClimbDatas;

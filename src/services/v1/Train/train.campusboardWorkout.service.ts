@@ -10,7 +10,7 @@ const findById = async (
   return await CampusBoardDatas.findById(trainId);
 };
 
-const findByProfileId: any = async (
+const findByProfileId = async (
   userId: string | ObjectId,
 ): Promise<CampusBoardData[]> => {
   return await CampusBoardDatas.find({ userId });
@@ -38,6 +38,10 @@ const remove = async (_id: string | ObjectId) => {
   return await CampusBoardDatas.deleteOne({ _id });
 };
 
+const removeByTrainingId = async (trainingId: string | ObjectId) => {
+  return await CampusBoardDatas.deleteMany({ trainingId });
+};
+
 const campusboardDataService = {
   findById,
   findByProfileId,
@@ -45,6 +49,7 @@ const campusboardDataService = {
   add,
   update,
   remove,
+  removeByTrainingId,
 };
 
 export default campusboardDataService;

@@ -74,24 +74,11 @@ trainingRouter.post('/:profileId', async (req, res) => {
 trainingRouter.put('/:trainId', async (req, res) => {
   try {
     const train = req.body.train;
-    const armData = req.body.armData;
-    const legData = req.body.legData;
-    const hangboardData = req.body.hangboardData;
-    const campusboardData = req.body.campusboardData;
-    const cardioData = req.body.cardioData;
     if (!train) {
       res.status(400).send('Climb data is required');
     }
 
-    const result = await trainingService.updateTrain(
-      req.params.trainId,
-      train,
-      armData,
-      campusboardData,
-      cardioData,
-      hangboardData,
-      legData,
-    );
+    const result = await trainingService.updateTrain(req.params.trainId, train);
 
     res.status(200).send(result);
   } catch (error) {

@@ -42,7 +42,7 @@ export enum KeyMoveTypes {
   OTHER = 'Other',
 }
 
-export enum GymHoldTypes {
+export enum HoldTypes {
   JUG = 'Jug',
   CRIMP = 'Crimp',
   SLOPER = 'Sloper',
@@ -143,4 +143,94 @@ export enum LegExerciseTypes {
   STEP_UP = 'STEP_UP',
   GLUTE_BRIDGE = 'GLUTE_BRIDGE',
   HIP_THRUST = 'HIP_THRUST',
+}
+
+export enum Regions {
+  'Africa',
+  'Asia',
+  'Australia',
+  'Europe',
+  'North America',
+  'South America',
+}
+
+export enum OutdoorRockFeatures {
+  SLAB = 'SLAB',
+  VERTICAL = 'VERTICAL',
+  OVERHANG = 'OVERHANG',
+  ROOF = 'ROOF',
+  DIHEDRAL = 'DIHEDRAL',
+  ARETE = 'ARETE',
+  CRACK = 'CRACK',
+  FACE = 'FACE',
+  OFFWIDTH = 'OFFWIDTH',
+  CHIMNEY = 'CHIMNEY',
+  CORNER = 'CORNER',
+  ROOF_CRACK = 'ROOF_CRACK',
+  ROOF_FACE = 'ROOF_FACE',
+  ROOF_ARETE = 'ROOF_ARETE',
+  ROOF_DIHEDRAL = 'ROOF_DIHEDRAL',
+  ROOF_CHIMNEY = 'ROOF_CHIMNEY',
+  ROOF_OFFWIDTH = 'ROOF_OFFWIDTH',
+  ROOF_CORNER = 'ROOF_CORNER',
+  ROOF_SLAB = 'ROOF_SLAB',
+  ROOF_VERTICAL = 'ROOF_VERTICAL',
+  ROOF_UNKNOWN = 'ROOF_UNKNOWN',
+  UNKNOWN = 'UNKNOWN',
+}
+
+export enum OutdoorRockTypes {
+  GRANITE = 'GRANITE',
+  SANDSTONE = 'SANDSTONE',
+  LIMESTONE = 'LIMESTONE',
+  QUARTZITE = 'QUARTZITE',
+  GNEISS = 'GNEISS',
+  SCHIST = 'SCHIST',
+  BASALT = 'BASALT',
+  RHYOLITE = 'RHYOLITE',
+  TRACHYTE = 'TRACHYTE',
+  DACITE = 'DACITE',
+  ANDESITE = 'ANDESITE',
+  TUFF = 'TUFF',
+  CONGLOMERATE = 'CONGLOMERATE',
+  SHIST = 'SHIST',
+  UNKNOWN = 'UNKNOWN',
+}
+
+export enum OutdoorRockQuality {
+  SOLID = 'SOLID',
+  LOOSE = 'LOOSE',
+  SANDY = 'SANDY',
+  CHOSSED = 'CHOSSED',
+  UNKNOWN = 'UNKNOWN',
+}
+
+export enum AreaInteractionTypes {
+  CLIMB = 'Climb',
+  REVIEW = 'Review',
+  POST = 'Post',
+  PHOTO = 'Photo',
+  Video = 'Video',
+  ADDED = 'Added',
+  ACTIVATED = 'Activated',
+  DEACTIVATED = 'Deactivated',
+  UPDATED = 'Updated',
+  VALIDATED = 'Validated',
+  ROUTE_ADDED = 'RouteAdded',
+  VIEWED = 'Viewed',
+}
+
+export enum RouteInteractionTypes {
+  CLIMB = 'Climb',
+  POST = 'Post',
+  PHOTO = 'Photo',
+  VIDEO = 'Video',
+  BETA = 'Beta',
+  BETA_VOTE = 'BetaVote',
+  REVIEW = 'Review',
+  ADDED = 'Added',
+  ACTIVATED = 'Activated',
+  DEACTIVATED = 'Deactivated',
+  UPDATED = 'Updated',
+  VERIFIED = 'Verified',
 }

@@ -10,7 +10,7 @@ const findById = async (
   return await LegWorkoutDatas.findById(trainId);
 };
 
-const findByProfileId: any = async (
+const findByProfileId = async (
   userId: string | ObjectId,
 ): Promise<LegWorkoutData[] | null> => {
   return await LegWorkoutDatas.find({ userId });
@@ -38,6 +38,10 @@ const remove = async (_id: string | ObjectId) => {
   return await LegWorkoutDatas.deleteOne({ _id });
 };
 
+const removeByTrainingId = async (trainingId: string | ObjectId) => {
+  return await LegWorkoutDatas.deleteMany({ trainingId });
+};
+
 const legDataService = {
   findById,
   findByProfileId,
@@ -45,6 +49,7 @@ const legDataService = {
   add,
   update,
   remove,
+  removeByTrainingId,
 };
 
 export default legDataService;

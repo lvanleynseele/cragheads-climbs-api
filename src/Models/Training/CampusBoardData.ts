@@ -3,9 +3,9 @@ import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import { CampusBoardGripTypes, CampusBoardTypes } from '../../constants/enums';
 
 export interface CampusBoardData {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
-  campusBoardId: ObjectId;
+  trainingId: ObjectId;
   campusBoardType: CampusBoardTypes;
   gripType: CampusBoardGripTypes;
   bodyWeight?: number;
@@ -15,8 +15,8 @@ export interface CampusBoardData {
   restTime?: number;
   injuryStatus?: string;
   notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const CampusBoardDataSchema = new Schema<CampusBoardData>(
@@ -26,20 +26,23 @@ const CampusBoardDataSchema = new Schema<CampusBoardData>(
       ref: 'Profile',
       required: true,
     },
-    campusBoardId: {
+    trainingId: {
       type: Schema.Types.ObjectId,
-      ref: 'CampusBoard',
+      ref: 'TrainingData',
       required: true,
+      index: true,
     },
     campusBoardType: {
       type: String,
       enum: Object.values(CampusBoardTypes),
       required: true,
+      index: true,
     },
     gripType: {
       type: String,
       enum: Object.values(CampusBoardGripTypes),
       required: true,
+      index: true,
     },
     bodyWeight: {
       type: Number,
@@ -79,5 +82,7 @@ export const CampusBoardDatas = mongoose.model<CampusBoardData>(
   'CampusBoardData',
   CampusBoardDataSchema,
 );
+
+CampusBoardDatas.ensureIndexes();
 
 export default CampusBoardDatas;

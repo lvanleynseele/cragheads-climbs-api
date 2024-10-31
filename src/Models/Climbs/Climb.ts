@@ -10,24 +10,35 @@ export interface ClimbResponse {
 }
 
 export interface Climb {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
+  username: string;
   areaId: ObjectId;
+  // can add climb to a project
+  projectId?: ObjectId;
+  //climb data
   isGymClimb: boolean;
   gymDataIds?: ObjectId[];
   outdoorDataIds?: ObjectId[];
+  //content
+  friendIds?: ObjectId[]; //tag friends on climb
+  likes?: number;
+  likeIds?: ObjectId[];
+  caption?: string;
+  images?: string[];
+  //time of climb
   startTime: string;
   endTime: string;
-  createdAt: Date;
-  updatedAt: Date;
+  //meta
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const ClimbSchema = new Schema<Climb>(
   {
-    // _id: Schema.Types.ObjectId,
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'Profile',
+      // ref: 'Profile',
       index: true,
       required: true,
     },
@@ -37,6 +48,12 @@ export const ClimbSchema = new Schema<Climb>(
       index: true,
       required: true,
     },
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Project',
+      required: false,
+      index: true,
+    },
     isGymClimb: {
       type: Boolean,
       required: true,
@@ -44,7 +61,7 @@ export const ClimbSchema = new Schema<Climb>(
     },
     gymDataIds: {
       type: [Schema.Types.ObjectId],
-      ref: 'GymClimbData',
+      ref: 'GymClimbDatas',
       required: false,
       default: [],
     },
@@ -57,6 +74,7 @@ export const ClimbSchema = new Schema<Climb>(
     startTime: {
       type: String,
       required: true,
+      index: true,
     },
     endTime: {
       type: String,
@@ -71,5 +89,11 @@ export const ClimbSchema = new Schema<Climb>(
 ClimbSchema.plugin(mongooseAggregatePaginate);
 
 const Climbs = mongoose.model<Climb>('Climb', ClimbSchema);
+
+// Climbs.createCollection();
+
+// Climbs.recompileSchema();
+
+Climbs.ensureIndexes();
 
 export default Climbs;

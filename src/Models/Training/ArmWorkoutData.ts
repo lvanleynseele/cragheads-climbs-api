@@ -3,8 +3,9 @@ import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import { ArmExerciseTypes } from '../../constants/enums';
 
 export interface ArmWorkoutData {
-  _id: ObjectId;
+  _id?: ObjectId;
   userId: ObjectId;
+  trainingId: ObjectId; //id of train session
   exerciseName: ArmExerciseTypes;
   sets?: number;
   reps?: number;
@@ -13,8 +14,8 @@ export interface ArmWorkoutData {
   duration?: number; // Total duration of the workout in minutes
   intensity?: number; // Subjective measure of workout intensity
   notes?: string; // Any additional notes about the workout
-  createdAt: Date; // Date of the workout session
-  updatedAt: Date;
+  createdAt?: Date; // Date of the workout session
+  updatedAt?: Date;
 }
 
 const ArmWorkoutDataSchema = new Schema<ArmWorkoutData>(
@@ -23,11 +24,19 @@ const ArmWorkoutDataSchema = new Schema<ArmWorkoutData>(
       type: Schema.Types.ObjectId,
       ref: 'Profile',
       required: true,
+      index: true,
+    },
+    trainingId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrainingData',
+      required: true,
+      index: true,
     },
     exerciseName: {
       type: String,
       enum: Object.values(ArmExerciseTypes),
       required: true,
+      index: true,
     },
     sets: {
       type: Number,
@@ -69,5 +78,7 @@ const ArmWorkoutDatas = mongoose.model<ArmWorkoutData>(
   'ArmWorkoutData',
   ArmWorkoutDataSchema,
 );
+
+ArmWorkoutDatas.ensureIndexes();
 
 export default ArmWorkoutDatas;

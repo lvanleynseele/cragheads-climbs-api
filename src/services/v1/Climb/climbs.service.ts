@@ -1,60 +1,70 @@
-import { ObjectId } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import Climbs, { Climb, ClimbResponse } from '../../../Models/Climbs/Climb';
 import profileService from '../Profile/profile.service';
 import gymClimbDataService from './climbs.gymData.service';
 import outdoorClimbDataService from './climbs.outdoorData.service';
 import { GymClimbData } from '../../../Models/Climbs/GymData';
 import { OutdoorClimbData } from '../../../Models/Climbs/OutdoorData';
+import areaInteractionService from '../Area/area.interactions.service';
+import { AreaInteractionTypes } from '../../../constants/enums';
+import routeInteractionService from '../Route/routes.interactions.service';
 
 const findById = async (climbId: string | ObjectId) => {
-  const climb = await Climbs.findById(climbId);
-  if (!climb) {
-    throw new Error('Climb not found');
-  }
-
-  if (climb.gymDataIds) {
-    const gymData = await Promise.all(
-      climb.gymDataIds.map(async gymDataId => {
-        return await gymClimbDataService.findById(gymDataId);
-      }),
-    );
-
-    return { climb, gymData };
-  }
-
-  if (climb.outdoorDataIds) {
-    const outdoorData = await Promise.all(
-      climb.outdoorDataIds.map(async outdoorDataId => {
-        return await outdoorClimbDataService.findById(outdoorDataId);
-      }),
-    );
-    return { climb, outdoorData };
-  }
-
-  return { climb };
+  return await Climbs.aggregate([
+    {
+      $match: {
+        _id: new Types.ObjectId(climbId.toString()),
+      },
+    },
+    {
+      $lookup: {
+        from: 'gymclimbdatas',
+        localField: '_id',
+        foreignField: 'climbId',
+        as: 'gymDatas',
+      },
+    },
+    {
+      $lookup: {
+        from: 'outdoorclimbdatas',
+        localField: '_id',
+        foreignField: 'climbId',
+        as: 'outdoorDatas',
+      },
+    },
+  ]);
 };
 
-const findByProfileId = async (profileId: string | ObjectId) =>
+const findByProfileId = async (userId: string | ObjectId) =>
   //: Promise<ClimbResponse[]>
   {
-    const profile = await profileService.findProfileById(profileId);
-
-    let climbs: Object[] = [];
-
-    if (profile && profile.climbIds) {
-      await Promise.all(
-        profile.climbIds.map(async climbId => {
-          const climb = await findById(climbId);
-          climbs.push(climb);
-        }),
-      );
-    }
-
-    return climbs;
+    return await Climbs.aggregate([
+      {
+        $match: {
+          userId: new Types.ObjectId(userId.toString()),
+        },
+      },
+      {
+        $lookup: {
+          from: 'gymclimbdatas',
+          localField: '_id',
+          foreignField: 'climbId',
+          as: 'gymDatas',
+        },
+      },
+      {
+        $lookup: {
+          from: 'outdoorclimbdatas',
+          localField: '_id',
+          foreignField: 'climbId',
+          as: 'outdoorDatas',
+        },
+      },
+    ]);
   };
 
 const findAllClimbs = async (): Promise<Climb[]> => {
-  return await Climbs.find({}); //collections.climbs.find({}).toArray();
+  return await Climbs.find({});
 };
 
 const addClimb = async (
@@ -65,48 +75,75 @@ const addClimb = async (
 ): Promise<Climb> => {
   await Climbs.validate(climb);
 
+  const result = await Climbs.create(climb);
+
   if (gymData) {
     const gymResponse = await Promise.all(
       gymData.map(async data => {
+        data.climbId = result._id;
+
         return await gymClimbDataService.add(data);
       }),
     );
 
-    climb.gymDataIds = gymResponse.map(data => data._id);
+    result.gymDataIds = gymResponse.map(data => data._id);
   }
 
   if (outdoorData) {
     const outdoorResponse = await Promise.all(
       outdoorData.map(async data => {
+        data.climbId = result._id;
         return await outdoorClimbDataService.add(data);
       }),
     );
 
-    climb.outdoorDataIds = outdoorResponse.map(data => data._id);
+    result.outdoorDataIds = outdoorResponse.map(data => data._id);
   }
 
-  const result = await Climbs.create(climb);
+  result.save();
 
   await profileService.addClimb(profileId, result._id);
 
+  handleAddClimbInteractions(profileId, result, outdoorData);
+
   return result;
+};
+
+const handleAddClimbInteractions = (
+  profileId: string | ObjectId,
+  climb: Climb,
+  outdoorData?: OutdoorClimbData[],
+) => {
+  areaInteractionService.addInteraction(
+    climb.areaId,
+    AreaInteractionTypes.CLIMB,
+    profileId,
+  );
+
+  outdoorData?.forEach(data => {
+    areaInteractionService.addInteraction(
+      data.routeId,
+      AreaInteractionTypes.CLIMB,
+      profileId,
+    );
+  });
+
+  if (climb.images) {
+    climb.images.forEach(() => {
+      areaInteractionService.addInteraction(
+        climb.areaId,
+        AreaInteractionTypes.PHOTO,
+        profileId,
+      );
+    });
+  }
 };
 
 const updateClimb = async (
   id: string | ObjectId,
   climb: Climb,
-  gymData?: GymClimbData,
-  outdoorData?: OutdoorClimbData,
 ): Promise<Climb | null> => {
   await Climbs.validate(climb);
-
-  if (gymData) {
-    await gymClimbDataService.update(gymData);
-  }
-
-  if (outdoorData) {
-    await outdoorClimbDataService.update(outdoorData);
-  }
 
   return await Climbs.findByIdAndUpdate({ _id: id }, { $set: climb });
 };
@@ -116,20 +153,8 @@ const deleteClimb = async (
   profileId: string | ObjectId,
 ): Promise<Climb | null> => {
   const result = await Climbs.findByIdAndDelete({ _id: id });
-  if (result && result.gymDataIds) {
-    await Promise.all(
-      result.gymDataIds.map(async gymDataId => {
-        await gymClimbDataService.remove(gymDataId);
-      }),
-    );
-  }
-  if (result && result.outdoorDataIds) {
-    await Promise.all(
-      result.outdoorDataIds.map(async outdoorDataId => {
-        await outdoorClimbDataService.remove(outdoorDataId);
-      }),
-    );
-  }
+  await gymClimbDataService.removeByClimbId(id);
+  await outdoorClimbDataService.removeByClimbId(id);
 
   await profileService.removeClimb(profileId, id);
 
