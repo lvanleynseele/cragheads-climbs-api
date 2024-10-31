@@ -1,7 +1,7 @@
 import express from 'express';
-import outdoorSuccessRateService from '../../../services/v1/ClimbData/OutdoorClimbData/outdoor.successRate.service';
-import climbDataGeneralService from '../../../services/v1/ClimbData/General/data.climb.general.service';
-import outdoorAvgDataDifficultyService from '../../../services/v1/ClimbData/OutdoorClimbData/outdoor.difficulty.service';
+import outdoorSuccessRateService from '../../../../services/v1/ClimbData/OutdoorClimbData/outdoor.successRate.service';
+import climbDataGeneralService from '../../../../services/v1/ClimbData/General/data.climb.general.service';
+import outdoorAvgDataDifficultyService from '../../../../services/v1/ClimbData/OutdoorClimbData/outdoor.difficulty.service';
 
 const outdoorDataRouter = express.Router();
 outdoorDataRouter.use(express.json());

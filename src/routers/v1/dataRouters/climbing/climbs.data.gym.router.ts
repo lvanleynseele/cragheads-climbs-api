@@ -1,7 +1,7 @@
 import express from 'express';
-import gymSuccessRateService from '../../../services/v1/ClimbData/GymClimbData/gym.successRate.service';
-import climbDataGeneralService from '../../../services/v1/ClimbData/General/data.climb.general.service';
-import gymAvgDataDifficultyService from '../../../services/v1/ClimbData/GymClimbData/gym.difficulty.service';
+import gymSuccessRateService from '../../../../services/v1/ClimbData/GymClimbData/gym.successRate.service';
+import climbDataGeneralService from '../../../../services/v1/ClimbData/General/data.climb.general.service';
+import gymAvgDataDifficultyService from '../../../../services/v1/ClimbData/GymClimbData/gym.difficulty.service';
 
 const gymDataRouter = express.Router();
 gymDataRouter.use(express.json());

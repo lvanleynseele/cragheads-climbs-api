@@ -73,6 +73,11 @@ const getTrainsPerMonth = async (profileId: ObjectId | string) => {
       return {
         _id: week.label,
         count: found ? found.count : 0,
+        arms: found ? found.armWorkouts : 0,
+        campusboard: found ? found.campusboardWorkouts : 0,
+        cardio: found ? found.cardioWorkouts : 0,
+        hangboard: found ? found.hangboardWorkouts : 0,
+        legs: found ? found.legWorkouts : 0,
       };
     });
 
@@ -148,6 +153,11 @@ const getTrainsPer6Months = async (profileId: ObjectId | string) => {
       return {
         _id: month.label,
         count: found ? found.count : 0,
+        arms: found ? found.armWorkouts : 0,
+        campusboard: found ? found.campusboardWorkouts : 0,
+        cardio: found ? found.cardioWorkouts : 0,
+        hangboard: found ? found.hangboardWorkouts : 0,
+        legs: found ? found.legWorkouts : 0,
       };
     });
 
@@ -222,6 +232,11 @@ const getTrainsPerYear = async (profileId: ObjectId | string) => {
       return {
         _id: month.label,
         count: found ? found.count : 0,
+        arms: found ? found.armWorkouts : 0,
+        campusboard: found ? found.campusboardWorkouts : 0,
+        cardio: found ? found.cardioWorkouts : 0,
+        hangboard: found ? found.hangboardWorkouts : 0,
+        legs: found ? found.legWorkouts : 0,
       };
     });
 

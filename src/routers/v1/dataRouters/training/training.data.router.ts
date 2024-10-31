@@ -1,7 +1,7 @@
 import express from 'express';
 import trainingDataTimeService from '../../../../services/v1/TrainingData/data.training.time.service';
 import armDataRouter from './training.arms.data.router';
-import campusboardDataRouter from './training.campusboard.data.router copy 3';
+import campusboardDataRouter from './training.campusboard.data.router';
 import hangboardDataRouter from './training.hangboard.data.router';
 import legDataRouter from './training.legs.data.router';
 import cardioDataRouter from './training.cardio.data.router';
