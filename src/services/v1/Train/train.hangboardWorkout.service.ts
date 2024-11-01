@@ -19,17 +19,17 @@ const findAll = async () => {
   return await HangBoardDatas.find({});
 };
 
-const add = async (train: any) => {
-  await HangBoardDatas.validate(train);
+const add = async (hang: HangBoardData) => {
+  await HangBoardDatas.validate(hang);
 
-  const result = await HangBoardDatas.create(train);
+  const result = await HangBoardDatas.create(hang);
   return result;
 };
 
-const update = async (train: any) => {
-  await HangBoardDatas.validate(train);
+const update = async (hang: HangBoardData) => {
+  await HangBoardDatas.validate(hang);
 
-  const result = await HangBoardDatas.updateOne(train);
+  const result = await HangBoardDatas.updateOne(hang);
   return result;
 };
 

@@ -23,17 +23,17 @@ const findAll = async () => {
   return await ArmWorkoutDatas.find({});
 };
 
-const add = async (train: any) => {
-  await ArmWorkoutDatas.validate(train);
+const add = async (arms: ArmWorkoutData) => {
+  await ArmWorkoutDatas.validate(arms);
 
-  const result = await ArmWorkoutDatas.create(train);
+  const result = await ArmWorkoutDatas.create(arms);
   return result;
 };
 
-const update = async (train: any) => {
-  await ArmWorkoutDatas.validate(train);
+const update = async (arms: ArmWorkoutData) => {
+  await ArmWorkoutDatas.validate(arms);
 
-  const result = await ArmWorkoutDatas.updateOne(train);
+  const result = await ArmWorkoutDatas.updateOne(arms);
   return result;
 };
 

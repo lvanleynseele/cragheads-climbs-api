@@ -78,8 +78,6 @@ climbsRouter.post('/:profileId', async (req, res) => {
 climbsRouter.put('/:climbId', async (req, res) => {
   try {
     const climb = req.body;
-    const gymData = req.body.gymData;
-    const outdoorData = req.body.outdoorData;
     if (!climb) {
       res.status(400).send('Climb data is required');
     }

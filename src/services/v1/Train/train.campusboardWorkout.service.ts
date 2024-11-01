@@ -20,17 +20,17 @@ const findAll = async () => {
   return await CampusBoardDatas.find({});
 };
 
-const add = async (train: any) => {
-  await CampusBoardDatas.validate(train);
+const add = async (campus: CampusBoardData) => {
+  await CampusBoardDatas.validate(campus);
 
-  const result = await CampusBoardDatas.create(train);
+  const result = await CampusBoardDatas.create(campus);
   return result;
 };
 
-const update = async (train: any) => {
-  await CampusBoardDatas.validate(train);
+const update = async (campus: CampusBoardData) => {
+  await CampusBoardDatas.validate(campus);
 
-  const result = await CampusBoardDatas.updateOne(train);
+  const result = await CampusBoardDatas.updateOne(campus);
   return result;
 };
 

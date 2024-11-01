@@ -20,17 +20,17 @@ const findAll = async () => {
   return await LegWorkoutDatas.find({});
 };
 
-const add = async (train: any) => {
-  await LegWorkoutDatas.validate(train);
+const add = async (legs: LegWorkoutData) => {
+  await LegWorkoutDatas.validate(legs);
 
-  const result = await LegWorkoutDatas.create(train);
+  const result = await LegWorkoutDatas.create(legs);
   return result;
 };
 
-const update = async (train: any) => {
-  await LegWorkoutDatas.validate(train);
+const update = async (legs: LegWorkoutData) => {
+  await LegWorkoutDatas.validate(legs);
 
-  const result = await LegWorkoutDatas.updateOne(train);
+  const result = await LegWorkoutDatas.updateOne(legs);
   return result;
 };
 

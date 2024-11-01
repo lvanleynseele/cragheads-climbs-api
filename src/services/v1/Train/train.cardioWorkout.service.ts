@@ -19,17 +19,17 @@ const findAll = async () => {
   return await CardioWorkoutDatas.find({});
 };
 
-const add = async (train: any) => {
-  await CardioWorkoutDatas.validate(train);
+const add = async (cardio: CardioWorkoutData) => {
+  await CardioWorkoutDatas.validate(cardio);
 
-  const result = await CardioWorkoutDatas.create(train);
+  const result = await CardioWorkoutDatas.create(cardio);
   return result;
 };
 
-const update = async (train: any) => {
-  await CardioWorkoutDatas.validate(train);
+const update = async (cardio: CardioWorkoutData) => {
+  await CardioWorkoutDatas.validate(cardio);
 
-  const result = await CardioWorkoutDatas.updateOne(train);
+  const result = await CardioWorkoutDatas.updateOne(cardio);
   return result;
 };
 
