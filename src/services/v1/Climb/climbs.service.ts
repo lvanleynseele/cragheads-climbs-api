@@ -76,11 +76,14 @@ const addClimb = async (
   await Climbs.validate(climb);
 
   const result = await Climbs.create(climb);
+  console.log(result._id);
+
+  const climbId = result._id;
 
   if (gymData) {
     const gymResponse = await Promise.all(
       gymData.map(async data => {
-        data.climbId = result._id;
+        data.climbId = climbId;
 
         return await gymClimbDataService.add(data);
       }),
@@ -92,7 +95,7 @@ const addClimb = async (
   if (outdoorData) {
     const outdoorResponse = await Promise.all(
       outdoorData.map(async data => {
-        data.climbId = result._id;
+        data.climbId = climbId;
         return await outdoorClimbDataService.add(data);
       }),
     );
@@ -161,6 +164,46 @@ const deleteClimb = async (
   return result;
 };
 
+const last3Locations = async (profileId: string | ObjectId) => {
+  // const climbs = await Climbs.find({ userId: profileId }).sort({ date: -1 });
+
+  // const locations = climbs
+  //   .map(climb => climb.areaId)
+  //   .filter((value, index, self) => self.indexOf(value) === index);
+
+  // return locations.slice(0, 3);
+
+  return await Climbs.aggregate([
+    {
+      $match: {
+        userId: new Types.ObjectId(profileId.toString()),
+      },
+    },
+    {
+      $group: {
+        _id: '$areaId',
+        date: { $max: '$createdAt' },
+      },
+    },
+    {
+      $sort: {
+        date: -1,
+      },
+    },
+    {
+      $limit: 3,
+    },
+    {
+      $lookup: {
+        from: 'areas',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'area',
+      },
+    },
+  ]);
+};
+
 const climbsService = {
   findById,
   findByProfileId,
@@ -168,6 +211,7 @@ const climbsService = {
   updateClimb,
   deleteClimb,
   findAllClimbs,
+  last3Locations,
 };
 
 export default climbsService;

@@ -5,7 +5,7 @@ FROM node:18
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the working directory
-COPY ["package*.json", "yarn.lock", "tsconfig.json",  "./"]
+COPY ["package*.json", "tsconfig.json",  "./"]
 
 # Install app dependencies
 RUN yarn install 

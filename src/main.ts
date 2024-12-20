@@ -1,12 +1,10 @@
 import * as dotenv from 'dotenv';
 
-import createServer from './server';
+import createServer, { hostname } from './server';
 import logger from './utils/logger';
 // import { registerSchedulers } from './utils/scheduler';
-import { connectToDatabase } from './services/utility/database.service';
 import mainRouter from './routers/v1/main.router';
 import { intializeDB } from './database/db';
-import keycloack from './utils/keycloack';
 
 const port = process.env.PORT || 3010;
 
@@ -16,17 +14,14 @@ const port = process.env.PORT || 3010;
     dotenv.config();
     app.listen(port, () => {
       logger.info(
-        `Cragheads Profile API Server started! Listening on port: ${port}`,
+        `Cragheads Climbs API Server started! Listening on port: ${port} on host: ${hostname}`,
       );
     });
 
     // infrastructure boot up
     await Promise.all([intializeDB()]);
 
-    app.use(keycloack.middleware());
     app.use('/v1', mainRouter);
-
-    // registerSchedulers();
   } catch (error) {
     logger.error(
       `Error starting server: ${error instanceof Error ? error.message : '-'}`,

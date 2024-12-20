@@ -16,19 +16,21 @@ services:
       - .:/app
     networks:
       - cragheads-climbs-network
+      - cragheads-shared-network
     
-  mongodb:
-    container_name: cragheads-climbs-mongo
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./data:/data/db
-    networks:
-      - cragheads-climbs-network
-
-  
+  # mongodb:
+  #   container_name: cragheads-climbs-mongo
+  #   image: mongo:latest
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./data:/data/db
+  #   networks:
+  #     - cragheads-climbs-network
+  #     - cragheads-shared-network
 
 networks:
-  cragheads-climbs-network:
-    driver: bridge
+  # cragheads-climbs-network:
+  #   driver: bridge
+  cragheads-shared-network:
+    external: true

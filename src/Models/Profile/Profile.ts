@@ -18,7 +18,7 @@ export interface Profile {
   climbIds: ObjectId[];
   recordIds: ObjectId[];
   trainingIds: ObjectId[];
-  postIds: ObjectId[];
+  projectIds: ObjectId[];
   date: Date;
 }
 
@@ -95,7 +95,7 @@ export const ProfileSchema = new Schema<Profile>(
       default: [],
       index: true,
     },
-    postIds: {
+    projectIds: {
       type: [Schema.Types.ObjectId],
       required: false,
       default: [],
@@ -104,13 +104,6 @@ export const ProfileSchema = new Schema<Profile>(
   },
   { timestamps: true },
 );
-
-// ProfileSchema.index({
-//   username: 'text',
-//   email: 'text',
-//   firstname: 'text',
-//   lastname: 'text',
-// });
 
 ProfileSchema.plugin(mongooseAggregatePaginate);
 

@@ -15,13 +15,4 @@ export const intializeDB = async () => {
   }
 };
 
-export const initializeSchemas = async () => {
-  try {
-    await intializeDB();
-    logger.info('Initializing schemas');
-  } catch (error) {
-    logger.error('Error initializing schemas', error);
-  }
-};
-
 //https://medium.com/@Bigscal-Technologies/how-to-set-up-node-js-with-mongodb-using-docker-49b5fb849bc7
