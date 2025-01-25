@@ -251,4 +251,18 @@ trainingRouter.delete('/hangboard/:hangboardId', async (req, res) => {
   }
 });
 
+trainingRouter.get('/last-3-locations/:profileId', async (req, res) => {
+  try {
+    const profileId = req.params.profileId;
+    if (!profileId) {
+      res.status(400).send('profileId is required');
+    }
+
+    const data = await trainingService.last3Locations(profileId);
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 export default trainingRouter;

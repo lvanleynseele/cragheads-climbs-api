@@ -224,6 +224,40 @@ const deleteTrain = async (
   return result;
 };
 
+const last3Locations = async (profileId: string | ObjectId) => {
+  const trainings = await TrainingDatas.aggregate([
+    {
+      $match: {
+        userId: new Types.ObjectId(profileId.toString()),
+      },
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+    {
+      $limit: 3,
+    },
+    {
+      $lookup: {
+        from: 'areas',
+        localField: 'gymId',
+        foreignField: '_id',
+        as: 'gym',
+      },
+    },
+    {
+      $unwind: '$gym', // Deconstructs the gym array
+    },
+    {
+      $project: {
+        gym: 1, // Only return the gym object
+      },
+    },
+  ]);
+
+  return trainings.map(item => item.gym);
+};
+
 const trainingService = {
   findById,
   findByProfileId,
@@ -231,6 +265,7 @@ const trainingService = {
   updateTrain,
   deleteTrain,
   findAllTrains,
+  last3Locations,
 };
 
 export default trainingService;

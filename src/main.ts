@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import createServer, { hostname } from './server';
+import createServer from './server';
 import logger from './utils/logger';
 // import { registerSchedulers } from './utils/scheduler';
 import mainRouter from './routers/v1/main.router';
@@ -14,7 +14,7 @@ const port = process.env.PORT || 3010;
     dotenv.config();
     app.listen(port, () => {
       logger.info(
-        `Cragheads Climbs API Server started! Listening on port: ${port} on host: ${hostname}`,
+        `Cragheads Climbs API Server started! Listening on port: ${port}`,
       );
     });
 
