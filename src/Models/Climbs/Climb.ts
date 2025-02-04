@@ -71,6 +71,32 @@ export const ClimbSchema = new Schema<Climb>(
       required: false,
       default: [],
     },
+    friendIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Profile',
+      required: false,
+      default: [],
+    },
+    likes: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    likeIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Profile',
+      required: false,
+      default: [],
+    },
+    caption: {
+      type: String,
+      required: false,
+    },
+    images: {
+      type: [String],
+      required: false,
+      default: [],
+    },
     startTime: {
       type: String,
       required: true,

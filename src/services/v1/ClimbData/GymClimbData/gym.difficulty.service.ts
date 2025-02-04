@@ -234,7 +234,6 @@ const getClimbsDifficultyYear = async (profileId: ObjectId | string) => {
 
 const getClimbsDifficultyAllTime = async (profileId: ObjectId | string) => {
   try {
-    console.log('profileId', profileId);
     return await GymClimbDatas.aggregate([
       {
         $match: {

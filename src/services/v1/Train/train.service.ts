@@ -235,12 +235,18 @@ const last3Locations = async (profileId: string | ObjectId) => {
       $sort: { createdAt: -1 },
     },
     {
+      $group: {
+        _id: '$gymId',
+        createdAt: { $first: '$createdAt' },
+      },
+    },
+    {
       $limit: 3,
     },
     {
       $lookup: {
         from: 'areas',
-        localField: 'gymId',
+        localField: '_id',
         foreignField: '_id',
         as: 'gym',
       },

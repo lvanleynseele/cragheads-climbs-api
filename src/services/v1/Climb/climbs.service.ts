@@ -76,7 +76,6 @@ const addClimb = async (
   await Climbs.validate(climb);
 
   const result = await Climbs.create(climb);
-  console.log(result._id);
 
   const climbId = result._id;
 
@@ -165,29 +164,21 @@ const deleteClimb = async (
 };
 
 const last3Locations = async (profileId: string | ObjectId) => {
-  // const climbs = await Climbs.find({ userId: profileId }).sort({ date: -1 });
-
-  // const locations = climbs
-  //   .map(climb => climb.areaId)
-  //   .filter((value, index, self) => self.indexOf(value) === index);
-
-  // return locations.slice(0, 3);
-
-  return await Climbs.aggregate([
+  const last3areas = await Climbs.aggregate([
     {
       $match: {
         userId: new Types.ObjectId(profileId.toString()),
       },
     },
     {
-      $group: {
-        _id: '$areaId',
-        date: { $max: '$createdAt' },
+      $sort: {
+        createdAt: -1,
       },
     },
     {
-      $sort: {
-        date: -1,
+      $group: {
+        _id: '$areaId',
+        date: { $max: '$createdAt' },
       },
     },
     {
@@ -201,7 +192,17 @@ const last3Locations = async (profileId: string | ObjectId) => {
         as: 'area',
       },
     },
+    {
+      $unwind: '$area',
+    },
+    {
+      $project: {
+        area: 1,
+      },
+    },
   ]);
+
+  return last3areas.map(area => area.area);
 };
 
 const climbsService = {
