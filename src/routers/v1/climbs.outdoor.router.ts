@@ -4,6 +4,20 @@ import outdoorClimbDataService from '../../services/v1/Climb/climbs.outdoorData.
 const outdoorRouter = express.Router();
 outdoorRouter.use(express.json());
 
+outdoorRouter.get('/by-id/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      res.status(400).send('id is required');
+    }
+
+    const result = await outdoorClimbDataService.findById(id);
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 outdoorRouter.put('/', async (req, res) => {
   try {
     const outdoorData = req.body;

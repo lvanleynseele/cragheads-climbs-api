@@ -31,7 +31,10 @@ const add = async (outdoorData: OutdoorClimbData) => {
 const update = async (outdoorData: OutdoorClimbData) => {
   await OutdoorClimbDatas.validate(outdoorData);
 
-  const result = await OutdoorClimbDatas.updateOne(outdoorData);
+  const result = await OutdoorClimbDatas.updateOne(
+    { _id: outdoorData._id },
+    { $set: outdoorData },
+  );
   return result;
 };
 

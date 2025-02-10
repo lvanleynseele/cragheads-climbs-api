@@ -28,7 +28,7 @@ const add = async (gymData: GymClimbData) => {
 const update = async (gymData: GymClimbData) => {
   await GymClimbDatas.validate(gymData);
 
-  return await GymClimbDatas.updateOne(gymData);
+  return await GymClimbDatas.updateOne({ _id: gymData._id }, { $set: gymData });
 };
 
 const remove = async (_id: string | ObjectId) => {
