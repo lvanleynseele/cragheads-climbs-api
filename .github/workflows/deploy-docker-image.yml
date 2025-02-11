@@ -57,6 +57,8 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  
+  
   deploy-ec2:
     needs: deploy-ecr
     runs-on: ubuntu-latest
@@ -82,14 +84,14 @@ jobs:
           # Check if Docker is installed
           docker --version
           
-          # Stop running container (if any)
-          docker stop $(docker ps -aq) || true
+          # Stop running containers (if any)
+          docker ps -aq | xargs --no-run-if-empty docker stop
           
-          # Remove old container (if any)
-          docker rm $(docker ps -aq) || true
+          # Remove stopped containers (if any)
+          docker ps -aq | xargs --no-run-if-empty docker rm
           
-          # Remove old image (if any)
-          docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:latest || true
+          # Remove old image (if exists)
+          docker images | grep "$ECR_REPOSITORY" | awk "{print \$3}" | xargs --no-run-if-empty docker rmi
           
           # Pull the latest image
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -97,3 +99,5 @@ jobs:
           # Run the latest image
           docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         '
+
+
