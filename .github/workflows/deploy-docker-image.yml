@@ -1,10 +1,10 @@
 name: Deploy to EC2
-
 on:
   push:
     branches: [ main ]
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -14,38 +14,82 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{secrets.AWS_REGION}}
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Build Docker image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{secrets.ECR_REPO_NAME}}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+  deploy-ecr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Push Docker image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+  deploy-ec2:
+    needs: deploy-ecr
+    runs-on: ubuntu-latest
+    steps:
     - name: Deploy to EC2
       env:
         PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME : ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME : ${{ secrets.EC2_USER_NAME }}
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+        USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -vvv -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          # Stop running container
-          docker stop $(docker ps -a -q)
-          # Remove old container
-          docker rm $(docker ps -a -q)
-          # Remove old image
-          docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          # Pull latest image
+        
+        # Check if the ssh command is available
+        which ssh
+        
+        # Test the SSH connection manually
+        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'echo "SSH connection successful"'
+        
+        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          # Check if Docker is installed
+          docker --version
+          
+          # Stop running container (if any)
+          docker stop $(docker ps -aq) || true
+          
+          # Remove old container (if any)
+          docker rm $(docker ps -aq) || true
+          
+          # Remove old image (if any)
+          docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:latest || true
+          
+          # Pull the latest image
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          # Run latest image
+          
+          # Run the latest image
           docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         '
