@@ -57,43 +57,84 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
   deploy-ec2:
     needs: deploy-ecr
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to EC2
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}
-        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        
-        # Check if the ssh command is available
-        which ssh
-        
-        # Test the SSH connection manually
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'echo "SSH connection successful"'
-        
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          # Check if Docker is installed
-          docker --version
-          
-          # Stop running containers (if any)
-          docker ps -aq | xargs --no-run-if-empty docker stop
-          
-          # Remove stopped containers (if any)
-          docker ps -aq | xargs --no-run-if-empty docker rm
-          
-          # Remove old image (if exists)
-          docker images | grep "$ECR_REPOSITORY" | awk "{print \$3}" | xargs --no-run-if-empty docker rmi
-          
-          # Pull the latest image
-          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          
-          # Run the latest image
-          docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        '
+      - name: Configure SSH connection
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          which ssh
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'echo "SSH connection successful"'
+    
+      - name: Check Docker installation
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker --version
+          '
+    
+      - name: Stop running containers
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker ps -aq | xargs --no-run-if-empty docker stop
+          '
+    
+      - name: Remove stopped containers
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker ps -aq | xargs --no-run-if-empty docker rm
+          '
+    
+      - name: Remove old image
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker images | grep "$ECR_REPOSITORY" | awk "{print \$3}" | xargs --no-run-if-empty docker rmi
+          '
+    
+      - name: Pull latest image from ECR
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          '
+    
+      - name: Run the latest container
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          '
