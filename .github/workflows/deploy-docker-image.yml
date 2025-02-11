@@ -112,7 +112,7 @@ jobs:
           echo "$PRIVATE_KEY" > private_key
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} \
-            'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs --no-run-if-empty -r docker rmi || true'
+            'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs -r docker rmi || true'
           rm -f private_key
     
       - name: Pull latest image from ECR
