@@ -70,52 +70,7 @@ jobs:
           USER_NAME: ${{ secrets.EC2_USER_NAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          which ssh
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} 'echo "SSH connection successful"'
-    
-      - name: Check Docker installation
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          USER_NAME: ${{ secrets.EC2_USER_NAME }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            docker --version
-          '
-    
-      - name: Stop running containers
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          USER_NAME: ${{ secrets.EC2_USER_NAME }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            docker ps -aq | xargs --no-run-if-empty docker stop
-          '
-    
-      - name: Remove stopped containers
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          USER_NAME: ${{ secrets.EC2_USER_NAME }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            docker ps -aq | xargs --no-run-if-empty docker rm
-          '
 
-      - name: Remove old Docker images
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          USER_NAME: ${{ secrets.EC2_USER_NAME }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-        run: |
-          echo "$PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} \
-            'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs -r docker rmi || true'
-          rm -f private_key
-    
       - name: Configure AWS ECR credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -126,7 +81,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
     
-      - name: Pull latest image from ECR
+      - name: Pull latest image from ECR and run container
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
@@ -137,17 +92,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          '
-    
-      - name: Run the latest container
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          USER_NAME: ${{ secrets.EC2_USER_NAME }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker stop $(docker ps -aq) || true
+            docker rm $(docker ps -aq) || true
             docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           '
