@@ -84,21 +84,16 @@ jobs:
           
           # Stop running containers (if any)
           docker ps -aq | xargs --no-run-if-empty docker stop
-          'echo "Stopped any running containers"'
           
           # Remove stopped containers (if any)
           docker ps -aq | xargs --no-run-if-empty docker rm
-          'echo "remove stopped containers"'
           
           # Remove old image (if exists)
           docker images | grep "$ECR_REPOSITORY" | awk "{print \$3}" | xargs --no-run-if-empty docker rmi
-          'echo "remove old image"'
           
           # Pull the latest image
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          'echo "Pull latest image"'
           
           # Run the latest image
           docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          'echo "run latest image"'
         '
