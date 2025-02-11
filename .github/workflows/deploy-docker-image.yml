@@ -104,10 +104,10 @@ jobs:
 
       - name: Remove old Docker images
         env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          HOSTNAME: ${{ secrets.HOSTNAME }}
-          USER_NAME: ${{ secrets.USER_NAME }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
         run: |
           echo "$PRIVATE_KEY" > private_key
           chmod 600 private_key
