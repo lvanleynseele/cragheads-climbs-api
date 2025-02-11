@@ -101,17 +101,19 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
             docker ps -aq | xargs --no-run-if-empty docker rm
           '
-    
-      - name: Remove old image
+
+      - name: Remove old Docker images
         env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          USER_NAME: ${{ secrets.EC2_USER_NAME }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          HOSTNAME: ${{ secrets.HOSTNAME }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            docker images | grep "$ECR_REPOSITORY" | awk "{print \$3}" | xargs --no-run-if-empty docker rmi
-          '
+          echo "$PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} \
+            'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs --no-run-if-empty -r docker rmi || true'
+          rm -f private_key
     
       - name: Pull latest image from ECR
         env:
