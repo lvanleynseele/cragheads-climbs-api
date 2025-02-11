@@ -80,7 +80,7 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-    
+
       - name: Pull latest image from ECR and run container
         env:
           PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
@@ -90,9 +90,9 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-            docker stop $(docker ps -aq) || true
-            docker rm $(docker ps -aq) || true
-            docker run -d $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          '
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "
+            docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+            docker stop \$(docker ps -aq) 2>/dev/null || true
+            docker rm \$(docker ps -aq) 2>/dev/null || true 
+            docker run -d ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          "
