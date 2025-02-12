@@ -1,136 +1,130 @@
 name: Deploy to EC2
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Store ECR registry as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ecr-registry
-        path: ${{ steps.login-ecr.outputs.registry }}
-    - name: Build Docker image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker save $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG > image.tar
-    - name: Upload Docker image as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: docker-image
-        path: image.tar
+      - uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker save $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG > image.tar
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar
 
   deploy-ecr:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Download ECR registry artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ecr-registry
-    - name: Set ECR_REGISTRY environment variable
-      run: echo "ECR_REGISTRY=$(cat ecr-registry)" >> $GITHUB_ENV
-    - name: Download Docker image artifact  
-      uses: actions/download-artifact@v4
-      with:
-        name: docker-image
-    - name: Load Docker image
-      run: |
-        docker load < image.tar
-    - name: Push Docker image to Amazon ECR
-      env:
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker push ${{ env.ECR_REGISTRY }}/$ECR_REPOSITORY:$IMAGE_TAG
-        
+      - uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+      - name: Load Docker image
+        run: |
+          docker load < image.tar
+      - name: Push Docker image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
   deploy-ec2:
     needs: deploy-ecr
     runs-on: ubuntu-latest
     steps:
-    - name: Download ECR registry artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ecr-registry
-    - name: Set ECR_REGISTRY environment variable
-      run: echo "ECR_REGISTRY=$(cat ecr-registry)" >> $GITHUB_ENV
-    - name: Configure SSH connection
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+      - name: Configure SSH connection
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
 
-    - name: Check Docker installation
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}
-      run: |
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          docker --version
-        '
-        
-    - name: Stop running containers
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}  
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}
-      run: |
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          docker ps -aq | xargs --no-run-if-empty docker stop
-        '
-        
-    - name: Remove stopped containers  
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }} 
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}
-      run: |
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          docker ps -aq | xargs --no-run-if-empty docker rm
-        '
-        
-    - name: Remove old Docker images
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}  
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key
-        chmod 600 private_key      
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} \
-          'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs -r docker rmi || true'
-          
-    - name: Pull latest image from ECR and run container
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-        USER_NAME: ${{ secrets.EC2_USER_NAME }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}  
-        IMAGE_TAG: ${{ github.sha }}
-      run: |  
-        ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "
-          docker pull ${{ env.ECR_REGISTRY }}/${ECR_REPOSITORY}:${IMAGE_TAG}
-          docker stop \$(docker ps -aq) 2>/dev/null || true
-          docker rm \$(docker ps -aq) 2>/dev/null || true
-          docker run -d ${{ env.ECR_REGISTRY }}/${ECR_REPOSITORY}:${IMAGE_TAG}  
-        "
+      - name: Check Docker installation
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker --version
+          '
+
+      - name: Stop running containers
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker ps -aq | xargs --no-run-if-empty docker stop
+          '
+
+      - name: Remove stopped containers
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            docker ps -aq | xargs --no-run-if-empty docker rm
+          '
+
+      - name: Remove old Docker images
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} \
+            'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs -r docker rmi || true'
+
+      - name: Pull latest image from ECR and run container
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
+          USER_NAME: ${{ secrets.EC2_USER_NAME }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "
+            docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+            docker stop \$(docker ps -aq) 2>/dev/null || true
+            docker rm \$(docker ps -aq) 2>/dev/null || true 
+            docker run -d ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          "
