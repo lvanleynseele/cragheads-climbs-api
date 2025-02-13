@@ -104,19 +104,21 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} \
             'docker images | grep -i "${ECR_REPOSITORY}" | awk "{print \$3}" | xargs -r docker rmi || true'
 
-      - name: Configure AWS credentials on EC2 instance
+
+      - name: Configure AWS credentials on EC2 and login to ECR
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "
             aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
             aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-            aws configure set default.region ${AWS_REGION}
+            aws configure set region ${AWS_REGION}
             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
           "
+
       - name: Pull latest image from ECR and run container
         run: |  
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} "
-            docker pull ${{ env.ECR_REGISTRY }}/${ECR_REPOSITORY}:${IMAGE_TAG}
+            docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
             docker stop \$(docker ps -aq) 2>/dev/null || true
             docker rm \$(docker ps -aq) 2>/dev/null || true
-            docker run -d ${{ env.ECR_REGISTRY }}/${ECR_REPOSITORY}:${IMAGE_TAG}  
+            docker run -d ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}  
           "
