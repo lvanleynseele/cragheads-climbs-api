@@ -1,6 +1,4 @@
 import winston from 'winston';
-import path from 'path';
-import { log } from 'console';
 
 const { createLogger, format, transports } = winston;
 const { printf } = format;
