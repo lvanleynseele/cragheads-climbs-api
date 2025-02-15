@@ -15,6 +15,10 @@ mainRouter.use((req, res, next) => {
 
 mainRouter.use(express.json());
 
+mainRouter.get('/ping', async (req, res) => {
+  res.send('pong');
+});
+
 mainRouter.use('/climbs', climbsRouter);
 mainRouter.use('/training', trainingRouter);
 

@@ -12,14 +12,14 @@ const port = process.env.PORT || 3010;
   try {
     const app = createServer();
     dotenv.config();
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
       logger.info(
         `Cragheads Climbs API Server started! Listening on port: ${port}`,
       );
     });
 
     // infrastructure boot up
-    await Promise.all([intializeDB()]);
+    await intializeDB();
 
     app.use('/v1', mainRouter);
   } catch (error) {
