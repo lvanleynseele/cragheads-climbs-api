@@ -17,8 +17,7 @@ mainRouter.use(express.json());
 
 mainRouter.get('/health', async (req, res) => {
   try {
-    const profilesCount = await Profiles.countDocuments();
-    res.status(200).json({ status: 'ok', profilesCount });
+    res.status(200).json({ status: 'ok' });
   } catch (error) {
     logger.error('Health check failed', error);
     res.status(500).json({ status: 'error', message: 'Health check failed' });
